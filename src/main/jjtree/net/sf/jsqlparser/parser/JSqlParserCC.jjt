@@ -2486,6 +2486,8 @@ Expression PrimaryExpression() #PrimaryExpression:
 
     | retval=CaseWhenExpression()
 
+    | retval=IfExpression()
+
     | retval = SimpleJdbcParameter()
 
     | LOOKAHEAD(2) retval=JdbcNamedParameter()
@@ -2770,6 +2772,42 @@ CastExpression CastExpression():
     {
         retval.setLeftExpression(expression);
         retval.setType(type);
+        return retval;
+    }
+}
+
+IfExpression IfExpression():{
+    IfExpression retval = new IfExpression();
+    Expression ifCondition = null;
+    Expression thenExpression = null;
+    Expression elseExpression = null;
+}
+{
+    <K_IF> "("
+        (
+            (LOOKAHEAD(AndExpression()) ifCondition=AndExpression()
+             | LOOKAHEAD(OrExpression()) ifCondition=OrExpression()
+             | LOOKAHEAD(SQLCondition()) ifCondition=SQLCondition()
+             | LOOKAHEAD(RegularCondition()) ifCondition=RegularCondition()
+            | ifCondition=SimpleExpression())
+            ","
+            (LOOKAHEAD(AndExpression()) thenExpression=AndExpression()
+             | LOOKAHEAD(OrExpression()) thenExpression=OrExpression()
+             | LOOKAHEAD(SQLCondition()) thenExpression=SQLCondition()
+             | LOOKAHEAD(RegularCondition()) thenExpression=RegularCondition()
+            | thenExpression=SimpleExpression())
+            ","
+            (LOOKAHEAD(AndExpression()) elseExpression=AndExpression()
+             | LOOKAHEAD(OrExpression()) elseExpression=OrExpression()
+             | LOOKAHEAD(SQLCondition()) elseExpression=SQLCondition()
+             | LOOKAHEAD(RegularCondition()) elseExpression=RegularCondition()
+            | elseExpression=SimpleExpression())
+        )
+    ")"
+    {
+        retval.setIfExpression(ifCondition);
+        retval.setThenExpression(thenExpression);
+        retval.setElseExpression(elseExpression);
         return retval;
     }
 }

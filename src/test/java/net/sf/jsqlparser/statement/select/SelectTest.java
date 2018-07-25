@@ -3226,4 +3226,20 @@ public class SelectTest {
     public void testMultiPartNamesIssue643() throws JSQLParserException {
         assertSqlCanBeParsedAndDeparsed("SELECT id, bid, pid, devnum, pointdesc, sysid, zone, sort FROM fault ORDER BY id DESC LIMIT ?, ?");
     }
+
+    public void testIfSimpleConditionInSelect() throws JSQLParserException {
+        assertSqlCanBeParsedAndDeparsed("SELECT if(a, 'Some Result If True', 'Some Result If False'), cola, colb FROM tbl");
+    }
+
+    public void testIfEqualsToConditionInSelect() throws JSQLParserException {
+        assertSqlCanBeParsedAndDeparsed("SELECT if(a = 0, 'Some Result If True', 'Some Result If False'), cola, colb FROM tbl");
+    }
+
+    public void testIfLikeExpressionConditionInSelect() throws JSQLParserException {
+        assertSqlCanBeParsedAndDeparsed("SELECT if(lsname LIKE '%dental%', 7, 0), cola, colb FROM tbl");
+    }
+
+    public void testIfAndConditionInSelect() throws JSQLParserException {
+        assertSqlCanBeParsedAndDeparsed("SELECT if(count(Target.offer_id) = 1 AND Target.member_id = '0', TARGET_ID_GENERATOR(80099702715, `Target`.`offer_id`), `Target`.`id`), cola, colb FROM tbl");
+    }
 }
