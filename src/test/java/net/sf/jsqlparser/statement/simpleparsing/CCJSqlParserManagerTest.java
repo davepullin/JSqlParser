@@ -8,6 +8,7 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.test.TestException;
 import net.sf.jsqlparser.statement.create.CreateTableTest;
+import net.sf.jsqlparser.statement.create.RecreateTableTest;
 import org.junit.Test;
 
 public class CCJSqlParserManagerTest {
@@ -16,6 +17,27 @@ public class CCJSqlParserManagerTest {
     public void testParse() throws Exception {
         CCJSqlParserManager parserManager = new CCJSqlParserManager();
         BufferedReader in = new BufferedReader(new InputStreamReader(CreateTableTest.class.
+                getResourceAsStream("/simple_parsing.txt")));
+
+        String statement = "";
+        while (true) {
+            try {
+                statement = CCJSqlParserManagerTest.getStatement(in);
+                if (statement == null) {
+                    break;
+                }
+
+                parserManager.parse(new StringReader(statement));
+            } catch (JSQLParserException e) {
+                throw new TestException("impossible to parse statement: " + statement, e);
+            }
+        }
+    }
+
+    @Test
+    public void testParse2() throws Exception {
+        CCJSqlParserManager parserManager = new CCJSqlParserManager();
+        BufferedReader in = new BufferedReader(new InputStreamReader(RecreateTableTest.class.
                 getResourceAsStream("/simple_parsing.txt")));
 
         String statement = "";

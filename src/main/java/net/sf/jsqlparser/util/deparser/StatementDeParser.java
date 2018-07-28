@@ -31,6 +31,7 @@ import net.sf.jsqlparser.statement.UseStatement;
 import net.sf.jsqlparser.statement.alter.Alter;
 import net.sf.jsqlparser.statement.create.index.CreateIndex;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.table.RecreateTable;
 import net.sf.jsqlparser.statement.create.view.AlterView;
 import net.sf.jsqlparser.statement.create.view.CreateView;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -72,6 +73,12 @@ public class StatementDeParser implements StatementVisitor {
     public void visit(CreateTable createTable) {
         CreateTableDeParser createTableDeParser = new CreateTableDeParser(buffer);
         createTableDeParser.deParse(createTable);
+    }
+
+    @Override
+    public void visit(RecreateTable recreateTable) {
+        RecreateTableDeParser recreateTableDeParser = new RecreateTableDeParser(buffer);
+        recreateTableDeParser.deParse(recreateTable);
     }
 
     @Override
