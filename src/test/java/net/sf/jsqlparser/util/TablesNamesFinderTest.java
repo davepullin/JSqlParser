@@ -13,6 +13,7 @@ import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.table.RecreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.merge.Merge;
@@ -319,6 +320,19 @@ public class TablesNamesFinderTest {
         CreateTable createTable = (CreateTable) statement;
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
         List<String> tableList = tablesNamesFinder.getTableList(createTable);
+        assertEquals(2, tableList.size());
+        assertTrue(tableList.contains("mytable"));
+        assertTrue(tableList.contains("mytable2"));
+    }
+
+    @Test
+    public void testRecreateSelect() throws Exception {
+        String sql = "RECREATE TABLE mytable AS SELECT mycolumn FROM mytable2";
+        net.sf.jsqlparser.statement.Statement statement = pm.parse(new StringReader(sql));
+
+       RecreateTable recreateTable = (RecreateTable) statement;
+        TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+        List<String> tableList = tablesNamesFinder.getTableList(recreateTable);
         assertEquals(2, tableList.size());
         assertTrue(tableList.contains("mytable"));
         assertTrue(tableList.contains("mytable2"));
