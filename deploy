@@ -1,0 +1,7 @@
+#!/bin/bash
+source /data/conf/init_script.sh $*
+shift $OPTION_SHIFTS 
+HELP "deploys this project"
+mvn install -DskipTests
+
+my rsync_confirm ./target/jsqlparser-1.3-SNAPSHOT* /s/lib
