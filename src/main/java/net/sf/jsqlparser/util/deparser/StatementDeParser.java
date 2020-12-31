@@ -5,8 +5,8 @@
  * Copyright (C) 2004 - 2013 JSQLParser
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 2.1 of the
  * License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU General Lesser Public 
+ * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
@@ -22,7 +22,6 @@
 package net.sf.jsqlparser.util.deparser;
 
 import java.util.Iterator;
-
 import net.sf.jsqlparser.statement.Commit;
 import net.sf.jsqlparser.statement.SetStatement;
 import net.sf.jsqlparser.statement.StatementVisitor;
@@ -31,6 +30,7 @@ import net.sf.jsqlparser.statement.UseStatement;
 import net.sf.jsqlparser.statement.alter.Alter;
 import net.sf.jsqlparser.statement.create.index.CreateIndex;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.table.NewVerb;
 import net.sf.jsqlparser.statement.create.table.RecreateTable;
 import net.sf.jsqlparser.statement.create.view.AlterView;
 import net.sf.jsqlparser.statement.create.view.CreateView;
@@ -47,6 +47,7 @@ import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.statement.upsert.Upsert;
 
 public class StatementDeParser implements StatementVisitor {
+
     private ExpressionDeParser expressionDeParser;
 
     private SelectDeParser selectDeParser;
@@ -79,6 +80,12 @@ public class StatementDeParser implements StatementVisitor {
     public void visit(RecreateTable recreateTable) {
         RecreateTableDeParser recreateTableDeParser = new RecreateTableDeParser(buffer);
         recreateTableDeParser.deParse(recreateTable);
+    }
+
+    @Override
+    public void visit(NewVerb newverbTable) {
+        NewVerbDeParser newverbTableDeParser = new NewVerbDeParser(buffer);
+        newverbTableDeParser.deParse(newverbTable);
     }
 
     @Override
@@ -135,9 +142,11 @@ public class StatementDeParser implements StatementVisitor {
         expressionDeParser.setSelectVisitor(selectDeParser);
         expressionDeParser.setBuffer(buffer);
         selectDeParser.setExpressionVisitor(expressionDeParser);
-        if (select.getWithItemsList() != null && !select.getWithItemsList().isEmpty()) {
+        if (select.getWithItemsList() != null && !select.getWithItemsList()
+                .isEmpty()) {
             buffer.append("WITH ");
-            for (Iterator<WithItem> iter = select.getWithItemsList().iterator(); iter.hasNext();) {
+            for (Iterator<WithItem> iter = select.getWithItemsList()
+                    .iterator(); iter.hasNext();) {
                 WithItem withItem = iter.next();
                 withItem.accept(selectDeParser);
                 if (iter.hasNext()) {
@@ -146,14 +155,15 @@ public class StatementDeParser implements StatementVisitor {
                 buffer.append(" ");
             }
         }
-        select.getSelectBody().accept(selectDeParser);
+        select.getSelectBody()
+                .accept(selectDeParser);
     }
 
     @Override
     public void visit(Truncate truncate) {
         buffer.append("TRUNCATE TABLE ");
         buffer.append(truncate.getTable());
-        if(truncate.getCascade()){
+        if (truncate.getCascade()) {
             buffer.append(" CASCADE");
         }
     }
@@ -213,7 +223,7 @@ public class StatementDeParser implements StatementVisitor {
         //TODO implementation of a deparser
         buffer.append(merge.toString());
     }
-    
+
     @Override
     public void visit(Commit commit) {
         buffer.append(commit.toString());
