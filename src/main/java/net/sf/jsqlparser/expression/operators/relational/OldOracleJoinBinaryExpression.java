@@ -1,28 +1,16 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.expression.operators.relational;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
-import static net.sf.jsqlparser.expression.operators.relational.SupportsOldOracleJoinSyntax.ORACLE_PRIOR_START;
+import net.sf.jsqlparser.expression.Expression;
 
 public abstract class OldOracleJoinBinaryExpression extends BinaryExpression implements SupportsOldOracleJoinSyntax {
 
@@ -40,8 +28,8 @@ public abstract class OldOracleJoinBinaryExpression extends BinaryExpression imp
 
     @Override
     public String toString() {
-        return (isNot() ? "NOT " : "")
-                + (oraclePriorPosition == ORACLE_PRIOR_START ? "PRIOR " : "")
+        return //(isNot() ? "NOT " : "")
+                (oraclePriorPosition == ORACLE_PRIOR_START ? "PRIOR " : "")
                 + getLeftExpression()
                 + (oldOracleJoinSyntax == ORACLE_JOIN_RIGHT ? "(+)" : "") + " "
                 + getStringExpression() + " "
@@ -63,5 +51,25 @@ public abstract class OldOracleJoinBinaryExpression extends BinaryExpression imp
     @Override
     public void setOraclePriorPosition(int oraclePriorPosition) {
         this.oraclePriorPosition = oraclePriorPosition;
+    }
+
+    public OldOracleJoinBinaryExpression withOldOracleJoinSyntax(int oldOracleJoinSyntax) {
+        this.setOldOracleJoinSyntax(oldOracleJoinSyntax);
+        return this;
+    }
+
+    public OldOracleJoinBinaryExpression withOraclePriorPosition(int oraclePriorPosition) {
+        this.setOraclePriorPosition(oraclePriorPosition);
+        return this;
+    }
+
+    @Override
+    public OldOracleJoinBinaryExpression withLeftExpression(Expression arg0) {
+        return (OldOracleJoinBinaryExpression) super.withLeftExpression(arg0);
+    }
+
+    @Override
+    public OldOracleJoinBinaryExpression withRightExpression(Expression arg0) {
+        return (OldOracleJoinBinaryExpression) super.withRightExpression(arg0);
     }
 }

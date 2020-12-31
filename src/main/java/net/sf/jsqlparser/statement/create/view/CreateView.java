@@ -1,56 +1,41 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.create.view;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.Select;
 
-/**
- * A "CREATE VIEW" statement
- */
 public class CreateView implements Statement {
 
     private Table view;
-    private SelectBody selectBody;
+    private Select select;
     private boolean orReplace = false;
     private List<String> columnNames = null;
     private boolean materialized = false;
     private ForceOption force = ForceOption.NONE;
     private TemporaryOption temp = TemporaryOption.NONE;
+    private boolean withReadOnly = false;
 
     @Override
     public void accept(StatementVisitor statementVisitor) {
         statementVisitor.visit(this);
     }
 
-    /**
-     * In the syntax tree, a view looks and acts just like a Table.
-     *
-     * @return The name of the view to be created.
-     */
     public Table getView() {
         return view;
     }
@@ -59,9 +44,6 @@ public class CreateView implements Statement {
         this.view = view;
     }
 
-    /**
-     * @return was "OR REPLACE" specified?
-     */
     public boolean isOrReplace() {
         return orReplace;
     }
@@ -73,15 +55,12 @@ public class CreateView implements Statement {
         this.orReplace = orReplace;
     }
 
-    /**
-     * @return the SelectBody
-     */
-    public SelectBody getSelectBody() {
-        return selectBody;
+    public Select getSelect() {
+        return select;
     }
 
-    public void setSelectBody(SelectBody selectBody) {
-        this.selectBody = selectBody;
+    public void setSelect(Select select) {
+        this.select = select;
     }
 
     public List<String> getColumnNames() {
@@ -116,6 +95,14 @@ public class CreateView implements Statement {
         this.temp = temp;
     }
 
+    public boolean isWithReadOnly() {
+        return withReadOnly;
+    }
+
+    public void setWithReadOnly(boolean withReadOnly) {
+        this.withReadOnly = withReadOnly;
+    }
+
     @Override
     public String toString() {
         StringBuilder sql = new StringBuilder("CREATE ");
@@ -130,11 +117,11 @@ public class CreateView implements Statement {
                 sql.append("NO FORCE ");
                 break;
         }
-        
+
         if (temp != TemporaryOption.NONE) {
             sql.append(temp.name()).append(" ");
         }
-        
+
         if (isMaterialized()) {
             sql.append("MATERIALIZED ");
         }
@@ -143,7 +130,57 @@ public class CreateView implements Statement {
         if (columnNames != null) {
             sql.append(PlainSelect.getStringList(columnNames, true, true));
         }
-        sql.append(" AS ").append(selectBody);
+        sql.append(" AS ").append(select);
+        if (isWithReadOnly()) {
+            sql.append(" WITH READ ONLY");
+        }
         return sql.toString();
+    }
+
+    public CreateView withView(Table view) {
+        this.setView(view);
+        return this;
+    }
+
+    public CreateView withSelect(Select select) {
+        this.setSelect(select);
+        return this;
+    }
+
+    public CreateView withOrReplace(boolean orReplace) {
+        this.setOrReplace(orReplace);
+        return this;
+    }
+
+    public CreateView withColumnNames(List<String> columnNames) {
+        this.setColumnNames(columnNames);
+        return this;
+    }
+
+    public CreateView withMaterialized(boolean materialized) {
+        this.setMaterialized(materialized);
+        return this;
+    }
+
+    public CreateView withForce(ForceOption force) {
+        this.setForce(force);
+        return this;
+    }
+
+    public CreateView withWithReadOnly(boolean withReadOnly) {
+        this.setWithReadOnly(withReadOnly);
+        return this;
+    }
+
+    public CreateView addColumnNames(String... columnNames) {
+        List<String> collection = Optional.ofNullable(getColumnNames()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, columnNames);
+        return this.withColumnNames(collection);
+    }
+
+    public CreateView addColumnNames(Collection<String> columnNames) {
+        List<String> collection = Optional.ofNullable(getColumnNames()).orElseGet(ArrayList::new);
+        collection.addAll(columnNames);
+        return this.withColumnNames(collection);
     }
 }

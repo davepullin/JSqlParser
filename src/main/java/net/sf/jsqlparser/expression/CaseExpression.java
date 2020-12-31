@@ -1,28 +1,19 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.expression;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 import net.sf.jsqlparser.parser.ASTNodeAccessImpl;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
@@ -49,13 +40,6 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
  * END
  * </pre></code>
  *
- * See also: https://aurora.vcu.edu/db2help/db2s0/frame3.htm#casexp
- * http://sybooks.sybase.com/onlinebooks/group-as/asg1251e /commands/
- *
- * @ebt-link;pt=5954?target=%25N%15_52628_START_RESTART_N%25
- *
- *
- * @author Havard Rast Blok
  */
 public class CaseExpression extends ASTNodeAccessImpl implements Expression {
 
@@ -68,16 +52,10 @@ public class CaseExpression extends ASTNodeAccessImpl implements Expression {
         expressionVisitor.visit(this);
     }
 
-    /**
-     * @return Returns the switchExpression.
-     */
     public Expression getSwitchExpression() {
         return switchExpression;
     }
 
-    /**
-     * @param switchExpression The switchExpression to set.
-     */
     public void setSwitchExpression(Expression switchExpression) {
         this.switchExpression = switchExpression;
     }
@@ -115,5 +93,40 @@ public class CaseExpression extends ASTNodeAccessImpl implements Expression {
         return "CASE " + ((switchExpression != null) ? switchExpression + " " : "")
                 + PlainSelect.getStringList(whenClauses, false, false) + " "
                 + ((elseExpression != null) ? "ELSE " + elseExpression + " " : "") + "END";
+    }
+
+    public CaseExpression withSwitchExpression(Expression switchExpression) {
+        this.setSwitchExpression(switchExpression);
+        return this;
+    }
+
+    public CaseExpression withWhenClauses(List<WhenClause> whenClauses) {
+        this.setWhenClauses(whenClauses);
+        return this;
+    }
+
+    public CaseExpression withElseExpression(Expression elseExpression) {
+        this.setElseExpression(elseExpression);
+        return this;
+    }
+
+    public CaseExpression addWhenClauses(WhenClause... whenClauses) {
+        List<WhenClause> collection = Optional.ofNullable(getWhenClauses()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, whenClauses);
+        return this.withWhenClauses(collection);
+    }
+
+    public CaseExpression addWhenClauses(Collection<? extends WhenClause> whenClauses) {
+        List<WhenClause> collection = Optional.ofNullable(getWhenClauses()).orElseGet(ArrayList::new);
+        collection.addAll(whenClauses);
+        return this.withWhenClauses(collection);
+    }
+
+    public <E extends Expression> E getSwitchExpression(Class<E> type) {
+        return type.cast(getSwitchExpression());
+    }
+
+    public <E extends Expression> E getElseExpression(Class<E> type) {
+        return type.cast(getElseExpression());
     }
 }

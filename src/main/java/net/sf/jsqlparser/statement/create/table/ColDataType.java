@@ -1,29 +1,19 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.create.table;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 public class ColDataType {
@@ -32,6 +22,14 @@ public class ColDataType {
     private List<String> argumentsStringList;
     private String characterSet;
     private List<Integer> arrayData = new ArrayList<Integer>();
+
+    public ColDataType() {
+        // empty constructor
+    }
+
+    public ColDataType(String dataType) {
+        this.dataType = dataType;
+    }
 
     public List<String> getArgumentsStringList() {
         return argumentsStringList;
@@ -77,8 +75,52 @@ public class ColDataType {
         }
         return dataType
                 + (argumentsStringList != null ? " " + PlainSelect.
-                                getStringList(argumentsStringList, true, true) : "")
+                        getStringList(argumentsStringList, true, true) : "")
                 + arraySpec.toString()
                 + (characterSet != null ? " CHARACTER SET " + characterSet : "");
+    }
+
+    public ColDataType withDataType(String dataType) {
+        this.setDataType(dataType);
+        return this;
+    }
+
+    public ColDataType withArgumentsStringList(List<String> argumentsStringList) {
+        this.setArgumentsStringList(argumentsStringList);
+        return this;
+    }
+
+    public ColDataType withCharacterSet(String characterSet) {
+        this.setCharacterSet(characterSet);
+        return this;
+    }
+
+    public ColDataType withArrayData(List<Integer> arrayData) {
+        this.setArrayData(arrayData);
+        return this;
+    }
+
+    public ColDataType addArgumentsStringList(String... argumentsStringList) {
+        List<String> collection = Optional.ofNullable(getArgumentsStringList()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, argumentsStringList);
+        return this.withArgumentsStringList(collection);
+    }
+
+    public ColDataType addArgumentsStringList(Collection<String> argumentsStringList) {
+        List<String> collection = Optional.ofNullable(getArgumentsStringList()).orElseGet(ArrayList::new);
+        collection.addAll(argumentsStringList);
+        return this.withArgumentsStringList(collection);
+    }
+
+    public ColDataType addArrayData(Integer... arrayData) {
+        List<Integer> collection = Optional.ofNullable(getArrayData()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, arrayData);
+        return this.withArrayData(collection);
+    }
+
+    public ColDataType addArrayData(Collection<Integer> arrayData) {
+        List<Integer> collection = Optional.ofNullable(getArrayData()).orElseGet(ArrayList::new);
+        collection.addAll(arrayData);
+        return this.withArrayData(collection);
     }
 }

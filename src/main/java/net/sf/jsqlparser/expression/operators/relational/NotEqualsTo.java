@@ -1,26 +1,15 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.expression.operators.relational;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 
 public class NotEqualsTo extends ComparisonOperator {
@@ -33,8 +22,34 @@ public class NotEqualsTo extends ComparisonOperator {
         super(operator);
     }
 
+    public NotEqualsTo(Expression left, Expression right) {
+        this();
+        setLeftExpression(left);
+        setRightExpression(right);
+    }
+
+    @Override
+    public NotEqualsTo withLeftExpression(Expression expression) {
+        return (NotEqualsTo) super.withLeftExpression(expression);
+    }
+
+    @Override
+    public NotEqualsTo withRightExpression(Expression expression) {
+        return (NotEqualsTo) super.withRightExpression(expression);
+    }
+
     @Override
     public void accept(ExpressionVisitor expressionVisitor) {
         expressionVisitor.visit(this);
+    }
+
+    @Override
+    public NotEqualsTo withOldOracleJoinSyntax(int arg0) {
+        return (NotEqualsTo) super.withOldOracleJoinSyntax(arg0);
+    }
+
+    @Override
+    public NotEqualsTo withOraclePriorPosition(int arg0) {
+        return (NotEqualsTo) super.withOraclePriorPosition(arg0);
     }
 }

@@ -1,35 +1,23 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.select;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.ASTNodeAccessImpl;
 import net.sf.jsqlparser.schema.Column;
 
-/**
- * A join clause
- */
 public class Join extends ASTNodeAccessImpl {
 
     private boolean outer = false;
@@ -41,34 +29,50 @@ public class Join extends ASTNodeAccessImpl {
     private boolean simple = false;
     private boolean cross = false;
     private boolean semi = false;
+    private boolean straight = false;
+    private boolean apply = false;
     private FromItem rightItem;
     private Expression onExpression;
     private List<Column> usingColumns;
+    private KSQLJoinWindow joinWindow;
 
-    /**
-     * Whether is a tab1,tab2 join
-     *
-     * @return true if is a "tab1,tab2" join
-     */
     public boolean isSimple() {
         return simple;
+    }
+
+    public Join withSimple(boolean b) {
+        this.setSimple(b);
+        return this;
     }
 
     public void setSimple(boolean b) {
         simple = b;
     }
 
-    /**
-     * Whether is a "INNER" join
-     *
-     * @return true if is a "INNER" join
-     */
     public boolean isInner() {
         return inner;
     }
 
+    public Join withInner(boolean b) {
+        this.setInner(b);
+        return this;
+    }
+
     public void setInner(boolean b) {
         inner = b;
+    }
+
+    public boolean isStraight() {
+        return straight;
+    }
+
+    public Join withStraight(boolean b) {
+        this.setStraight(b);
+        return this;
+    }
+
+    public void setStraight(boolean b) {
+        straight = b;
     }
 
     /**
@@ -80,8 +84,26 @@ public class Join extends ASTNodeAccessImpl {
         return outer;
     }
 
+    public Join withOuter(boolean b) {
+        this.setOuter(b);
+        return this;
+    }
+
     public void setOuter(boolean b) {
         outer = b;
+    }
+
+    public boolean isApply() {
+        return apply;
+    }
+
+    public Join withApply(boolean apply) {
+        this.setApply(apply);
+        return this;
+    }
+
+    public void setApply(boolean apply) {
+        this.apply = apply;
     }
 
     /**
@@ -91,6 +113,11 @@ public class Join extends ASTNodeAccessImpl {
      */
     public boolean isSemi() {
         return semi;
+    }
+
+    public Join withSemi(boolean b) {
+        this.setSemi(b);
+        return this;
     }
 
     public void setSemi(boolean b) {
@@ -106,6 +133,11 @@ public class Join extends ASTNodeAccessImpl {
         return left;
     }
 
+    public Join withLeft(boolean b) {
+        this.setLeft(b);
+        return this;
+    }
+
     public void setLeft(boolean b) {
         left = b;
     }
@@ -117,6 +149,11 @@ public class Join extends ASTNodeAccessImpl {
      */
     public boolean isRight() {
         return right;
+    }
+
+    public Join withRight(boolean b) {
+        this.setRight(b);
+        return this;
     }
 
     public void setRight(boolean b) {
@@ -132,6 +169,11 @@ public class Join extends ASTNodeAccessImpl {
         return natural;
     }
 
+    public Join withNatural(boolean b) {
+        this.setNatural(b);
+        return this;
+    }
+
     public void setNatural(boolean b) {
         natural = b;
     }
@@ -145,12 +187,22 @@ public class Join extends ASTNodeAccessImpl {
         return full;
     }
 
+    public Join withFull(boolean b) {
+        this.setFull(b);
+        return this;
+    }
+
     public void setFull(boolean b) {
         full = b;
     }
 
     public boolean isCross() {
         return cross;
+    }
+
+    public Join withCross(boolean cross) {
+        this.setCross(cross);
+        return this;
     }
 
     public void setCross(boolean cross) {
@@ -164,6 +216,11 @@ public class Join extends ASTNodeAccessImpl {
         return rightItem;
     }
 
+    public Join withRightItem(FromItem item) {
+        this.setRightItem(item);
+        return this;
+    }
+
     public void setRightItem(FromItem item) {
         rightItem = item;
     }
@@ -173,6 +230,11 @@ public class Join extends ASTNodeAccessImpl {
      */
     public Expression getOnExpression() {
         return onExpression;
+    }
+
+    public Join withOnExpression(Expression expression) {
+        this.setOnExpression(expression);
+        return this;
     }
 
     public void setOnExpression(Expression expression) {
@@ -186,13 +248,40 @@ public class Join extends ASTNodeAccessImpl {
         return usingColumns;
     }
 
+    public Join withUsingColumns(List<Column> list) {
+        this.setUsingColumns(list);
+        return this;
+    }
+
     public void setUsingColumns(List<Column> list) {
         usingColumns = list;
     }
 
+    public boolean isWindowJoin() {
+        return joinWindow != null;
+    }
+
+    /**
+     * Return the "WITHIN" join window (if any)
+     */
+    public KSQLJoinWindow getJoinWindow() {
+        return joinWindow;
+    }
+
+    public Join withJoinWindow(KSQLJoinWindow joinWindow) {
+        this.setJoinWindow(joinWindow);
+        return this;
+    }
+
+    public void setJoinWindow(KSQLJoinWindow joinWindow) {
+        this.joinWindow = joinWindow;
+    }
+
     @Override
     public String toString() {
-        if (isSimple()) {
+        if (isSimple() && isOuter()) {
+            return "OUTER " + rightItem;
+        } else if (isSimple()) {
             return "" + rightItem;
         } else {
             String type = "";
@@ -217,9 +306,38 @@ public class Join extends ASTNodeAccessImpl {
                 type += "SEMI ";
             }
 
-            return type + "JOIN " + rightItem + ((onExpression != null) ? " ON " + onExpression + "" : "")
+            if (isStraight()) {
+                type = "STRAIGHT_JOIN ";
+            } else if (isApply()) {
+                type += "APPLY ";
+            } else {
+                type += "JOIN ";
+            }
+
+            return type + rightItem + ((joinWindow != null) ? " WITHIN " + joinWindow : "")
+                    + ((onExpression != null) ? " ON " + onExpression + "" : "")
                     + PlainSelect.getFormatedList(usingColumns, "USING", true, true);
         }
 
+    }
+
+    public Join addUsingColumns(Column... usingColumns) {
+        List<Column> collection = Optional.ofNullable(getUsingColumns()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, usingColumns);
+        return this.withUsingColumns(collection);
+    }
+
+    public Join addUsingColumns(Collection<? extends Column> usingColumns) {
+        List<Column> collection = Optional.ofNullable(getUsingColumns()).orElseGet(ArrayList::new);
+        collection.addAll(usingColumns);
+        return this.withUsingColumns(collection);
+    }
+
+    public <E extends FromItem> E getRightItem(Class<E> type) {
+        return type.cast(getRightItem());
+    }
+
+    public <E extends Expression> E getOnExpression(Class<E> type) {
+        return type.cast(getOnExpression());
     }
 }

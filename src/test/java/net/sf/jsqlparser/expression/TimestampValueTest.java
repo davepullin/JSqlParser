@@ -1,5 +1,15 @@
+/*-
+ * #%L
+ * JSQLParser library
+ * %%
+ * Copyright (C) 2004 - 2019 JSQLParser
+ * %%
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
+ * #L%
+ */
 package net.sf.jsqlparser.expression;
 
+import static org.junit.Assert.assertEquals;
 import net.sf.jsqlparser.JSQLParserException;
 import org.junit.Test;
 
@@ -8,9 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * @author Linyu Chen
- */
 public class TimestampValueTest {
 
     @Test
@@ -19,6 +26,7 @@ public class TimestampValueTest {
         String currentDate = dateFormat.format(new Date());
         TimestampValue tv = new TimestampValue(currentDate);
         System.out.println(tv.toString());
+        assertEquals(currentDate, tv.getRawValue());
     }
 
     @Test
@@ -27,5 +35,6 @@ public class TimestampValueTest {
         String currentDate = dateFormat.format(new Date());
         TimestampValue tv = new TimestampValue("'" + currentDate + "'");
         System.out.println(tv.toString());
+        assertEquals("'" + currentDate + "'", tv.getRawValue());
     }
 }

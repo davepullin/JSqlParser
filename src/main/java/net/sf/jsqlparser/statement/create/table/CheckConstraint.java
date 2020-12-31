@@ -1,38 +1,23 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.create.table;
 
+import java.util.Collection;
+import java.util.List;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 
-/**
- * Table Check Constraint Eg. ' CONSTRAINT less_than_ten CHECK (count < 10) ' @au
- *
- *
- * thor mw
- */
 public class CheckConstraint extends NamedConstraint {
 
     private Table table;
+
     private Expression expression;
 
     public Table getTable() {
@@ -55,4 +40,64 @@ public class CheckConstraint extends NamedConstraint {
     public String toString() {
         return "CONSTRAINT " + getName() + " CHECK (" + expression + ")";
     }
+
+    public CheckConstraint withTable(Table table) {
+        this.setTable(table);
+        return this;
+    }
+
+    public CheckConstraint withExpression(Expression expression) {
+        this.setExpression(expression);
+        return this;
+    }
+
+    public <E extends Expression> E getExpression(Class<E> type) {
+        return type.cast(getExpression());
+    }
+
+    @Override
+    public CheckConstraint withType(String type) {
+        return (CheckConstraint) super.withType(type);
+    }
+
+    @Override
+    public CheckConstraint withUsing(String using) {
+        return (CheckConstraint) super.withUsing(using);
+    }
+
+    @Override
+    public CheckConstraint withName(List<String> name) {
+        return (CheckConstraint) super.withName(name);
+    }
+
+    @Override
+    public CheckConstraint withName(String name) {
+        return (CheckConstraint) super.withName(name);
+    }
+
+    @Override
+    public CheckConstraint withColumnsNames(List<String> list) {
+        return (CheckConstraint) super.withColumnsNames(list);
+    }
+
+    @Override
+    public CheckConstraint withColumns(List<ColumnParams> columns) {
+        return (CheckConstraint) super.withColumns(columns);
+    }
+
+    @Override
+    public CheckConstraint addColumns(ColumnParams... functionDeclarationParts) {
+        return (CheckConstraint) super.addColumns(functionDeclarationParts);
+    }
+
+    @Override
+    public CheckConstraint addColumns(Collection<? extends ColumnParams> functionDeclarationParts) {
+        return (CheckConstraint) super.addColumns(functionDeclarationParts);
+    }
+
+    @Override
+    public CheckConstraint withIndexSpec(List<String> idxSpec) {
+        return (CheckConstraint) super.withIndexSpec(idxSpec);
+    }
+
 }

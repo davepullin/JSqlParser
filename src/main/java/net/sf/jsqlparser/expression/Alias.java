@@ -1,34 +1,27 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2014 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.expression;
 
-/**
- *
- * @author toben
- */
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import net.sf.jsqlparser.statement.create.table.ColDataType;
+
 public class Alias {
 
     private String name;
     private boolean useAs = true;
+    private List<AliasColumn> aliasColumns;
 
     public Alias(String name) {
         this.name = name;
@@ -55,8 +48,75 @@ public class Alias {
         this.useAs = useAs;
     }
 
+    public List<AliasColumn> getAliasColumns() {
+        return aliasColumns;
+    }
+
+    public void setAliasColumns(List<AliasColumn> aliasColumns) {
+        this.aliasColumns = aliasColumns;
+    }
+
     @Override
     public String toString() {
-        return (useAs ? " AS " : " ") + name;
+        String alias = (useAs ? " AS " : " ") + name;
+
+        if (aliasColumns != null && !aliasColumns.isEmpty()) {
+            String ac = "";
+            for (AliasColumn col : aliasColumns) {
+                if (ac.length() > 0) {
+                    ac += ", ";
+                }
+                ac += col.name;
+                if (col.colDataType != null) {
+                    ac += " " + col.colDataType.toString();
+                }
+            }
+            alias += "(" + ac + ")";
+        }
+
+        return alias;
+    }
+
+    public Alias withName(String name) {
+        this.setName(name);
+        return this;
+    }
+
+    public Alias withUseAs(boolean useAs) {
+        this.setUseAs(useAs);
+        return this;
+    }
+
+    public Alias withAliasColumns(List<AliasColumn> aliasColumns) {
+        this.setAliasColumns(aliasColumns);
+        return this;
+    }
+
+    public Alias addAliasColumns(AliasColumn... aliasColumns) {
+        List<AliasColumn> collection = Optional.ofNullable(getAliasColumns()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, aliasColumns);
+        return this.withAliasColumns(collection);
+    }
+
+    public Alias addAliasColumns(Collection<? extends AliasColumn> aliasColumns) {
+        List<AliasColumn> collection = Optional.ofNullable(getAliasColumns()).orElseGet(ArrayList::new);
+        collection.addAll(aliasColumns);
+        return this.withAliasColumns(collection);
+    }
+
+    public static class AliasColumn {
+
+        public final String name;
+        public final ColDataType colDataType;
+
+        public AliasColumn(String name, ColDataType colDataType) {
+            Objects.requireNonNull(name);
+            this.name = name;
+            this.colDataType = colDataType;
+        }
+
+        public AliasColumn(String name) {
+            this(name, null);
+        }
     }
 }

@@ -1,29 +1,19 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.select;
 
-import net.sf.jsqlparser.schema.Column;
-
+import java.util.Collection;
 import java.util.List;
+
+import net.sf.jsqlparser.expression.Alias;
+import net.sf.jsqlparser.schema.Column;
 
 public class PivotXml extends Pivot {
 
@@ -61,6 +51,85 @@ public class PivotXml extends Pivot {
                 + " FOR " + PlainSelect.
                         getStringList(forColumns, true, forColumns != null && forColumns.size() > 1)
                 + " IN (" + in + "))";
+    }
+
+    public PivotXml withInSelect(SelectBody inSelect) {
+        this.setInSelect(inSelect);
+        return this;
+    }
+
+    public PivotXml withInAny(boolean inAny) {
+        this.setInAny(inAny);
+        return this;
+    }
+
+    public <E extends SelectBody> E getInSelect(Class<E> type) {
+        return type.cast(getInSelect());
+    }
+
+    @Override
+    public PivotXml withAlias(Alias alias) {
+        return (PivotXml) super.withAlias(alias);
+    }
+
+    @Override
+    public PivotXml withFunctionItems(List<FunctionItem> functionItems) {
+        return (PivotXml) super.withFunctionItems(functionItems);
+    }
+
+    @Override
+    public PivotXml withForColumns(List<Column> forColumns) {
+        return (PivotXml) super.withForColumns(forColumns);
+    }
+
+    @Override
+    public PivotXml withSingleInItems(List<SelectExpressionItem> singleInItems) {
+        return (PivotXml) super.withSingleInItems(singleInItems);
+    }
+
+    @Override
+    public PivotXml withMultiInItems(List<ExpressionListItem> multiInItems) {
+        return (PivotXml) super.withMultiInItems(multiInItems);
+    }
+
+    @Override
+    public PivotXml addFunctionItems(Collection<? extends FunctionItem> functionItems) {
+        return (PivotXml) super.addFunctionItems(functionItems);
+    }
+
+    @Override
+    public PivotXml addFunctionItems(FunctionItem... functionItems) {
+        return (PivotXml) super.addFunctionItems(functionItems);
+    }
+
+    @Override
+    public PivotXml addForColumns(Collection<? extends Column> forColumns) {
+        return (PivotXml) super.addForColumns(forColumns);
+    }
+
+    @Override
+    public PivotXml addForColumns(Column... forColumns) {
+        return (PivotXml) super.addForColumns(forColumns);
+    }
+
+    @Override
+    public PivotXml addSingleInItems(Collection<? extends SelectExpressionItem> singleInItems) {
+        return (PivotXml) super.addSingleInItems(singleInItems);
+    }
+
+    @Override
+    public PivotXml addSingleInItems(SelectExpressionItem... singleInItems) {
+        return (PivotXml) super.addSingleInItems(singleInItems);
+    }
+
+    @Override
+    public PivotXml addMultiInItems(ExpressionListItem... multiInItems) {
+        return (PivotXml) super.addMultiInItems(multiInItems);
+    }
+
+    @Override
+    public PivotXml addMultiInItems(Collection<? extends ExpressionListItem> multiInItems) {
+        return (PivotXml) super.addMultiInItems(multiInItems);
     }
 
 }

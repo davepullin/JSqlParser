@@ -1,14 +1,27 @@
+/*-
+ * #%L
+ * JSQLParser library
+ * %%
+ * Copyright (C) 2004 - 2019 JSQLParser
+ * %%
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
+ * #L%
+ */
 package net.sf.jsqlparser.statement.delete;
 
 import static net.sf.jsqlparser.test.TestUtils.assertSqlCanBeParsedAndDeparsed;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.StringReader;
 
-import org.junit.Test;
-
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
-import static org.junit.Assert.assertEquals;
+import net.sf.jsqlparser.schema.Column;
+import org.junit.Test;
 
 public class DeleteTest {
 
@@ -32,7 +45,13 @@ public class DeleteTest {
     @Test
     public void testDeleteWithLimit() throws JSQLParserException {
         String stmt = "DELETE FROM tablename WHERE a = 1 AND b = 1 LIMIT 5";
-        assertSqlCanBeParsedAndDeparsed(stmt);
+        Delete parsed = (Delete) assertSqlCanBeParsedAndDeparsed(stmt);
+        AndExpression where = parsed.getWhere(AndExpression.class);
+        EqualsTo left = where.getLeftExpression(EqualsTo.class);
+        assertEquals("a", left.getLeftExpression(Column.class).getColumnName());
+        EqualsTo right = where.getRightExpression(EqualsTo.class);
+        assertEquals("b", right.getLeftExpression(Column.class).getColumnName());
+        assertEquals(5, parsed.getLimit().getRowCount(LongValue.class).getValue());
     }
 
     @Test(expected = JSQLParserException.class)
@@ -69,5 +88,10 @@ public class DeleteTest {
     public void testDeleteFromTableUsingInnerJoinToAnotherTableWithAlias() throws JSQLParserException {
         String stmt = "DELETE gc FROM guide_category AS gc LEFT JOIN guide AS g ON g.id_guide = gc.id_guide WHERE g.title IS NULL LIMIT 5";
         assertSqlCanBeParsedAndDeparsed(stmt);
+    }
+
+     @Test
+    public void testDeleteMultiTableIssue878() throws JSQLParserException {
+        assertSqlCanBeParsedAndDeparsed("DELETE table1, table2 FROM table1, table2");
     }
 }

@@ -1,28 +1,19 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.update;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -30,23 +21,21 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.Limit;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.OrderByElement;
-import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 
-/**
- * The update statement.
- */
 public class Update implements Statement {
 
-    private List<Table> tables;
+    private Table table;
     private Expression where;
     private List<Column> columns;
     private List<Expression> expressions;
     private FromItem fromItem;
     private List<Join> joins;
+    private List<Join> startJoins;
     private Select select;
     private boolean useColumnsBrackets = true;
     private boolean useSelect = false;
@@ -60,37 +49,26 @@ public class Update implements Statement {
         statementVisitor.visit(this);
     }
 
-    public List<Table> getTables() {
-        return tables;
+    public Table getTable() {
+        return table;
     }
 
     public Expression getWhere() {
         return where;
     }
 
-    public void setTables(List<Table> list) {
-        tables = list;
+    public void setTable(Table table) {
+        this.table = table;
     }
 
     public void setWhere(Expression expression) {
         where = expression;
     }
 
-    /**
-     * The {@link net.sf.jsqlparser.schema.Column}s in this update (as col1 and col2 in UPDATE
-     * col1='a', col2='b')
-     *
-     * @return a list of {@link net.sf.jsqlparser.schema.Column}s
-     */
     public List<Column> getColumns() {
         return columns;
     }
 
-    /**
-     * The {@link Expression}s in this update (as 'a' and 'b' in UPDATE col1='a', col2='b')
-     *
-     * @return a list of {@link Expression}s
-     */
     public List<Expression> getExpressions() {
         return expressions;
     }
@@ -117,6 +95,14 @@ public class Update implements Statement {
 
     public void setJoins(List<Join> joins) {
         this.joins = joins;
+    }
+
+    public List<Join> getStartJoins() {
+        return startJoins;
+    }
+
+    public void setStartJoins(List<Join> startJoins) {
+        this.startJoins = startJoins;
     }
 
     public Select getSelect() {
@@ -178,7 +164,17 @@ public class Update implements Statement {
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder("UPDATE ");
-        b.append(PlainSelect.getStringList(getTables(), true, false)).append(" SET ");
+        b.append(table);
+        if (startJoins != null) {
+                for (Join join : startJoins) {
+                    if (join.isSimple()) {
+                        b.append(", ").append(join);
+                    } else {
+                        b.append(" ").append(join);
+                    }
+                }
+            }
+        b.append(" SET ");
 
         if (!useSelect) {
             for (int i = 0; i < getColumns().size(); i++) {
@@ -237,5 +233,155 @@ public class Update implements Statement {
         }
 
         return b.toString();
+    }
+
+    public Update withTable(Table table) {
+        this.setTable(table);
+        return this;
+    }
+
+    public Update withFromItem(FromItem fromItem) {
+        this.setFromItem(fromItem);
+        return this;
+    }
+
+    public Update withJoins(List<Join> joins) {
+        this.setJoins(joins);
+        return this;
+    }
+
+    public Update withStartJoins(List<Join> startJoins) {
+        this.setStartJoins(startJoins);
+        return this;
+    }
+
+    public Update withSelect(Select select) {
+        this.setSelect(select);
+        return this;
+    }
+
+    public Update withUseColumnsBrackets(boolean useColumnsBrackets) {
+        this.setUseColumnsBrackets(useColumnsBrackets);
+        return this;
+    }
+
+    public Update withUseSelect(boolean useSelect) {
+        this.setUseSelect(useSelect);
+        return this;
+    }
+
+    public Update withOrderByElements(List<OrderByElement> orderByElements) {
+        this.setOrderByElements(orderByElements);
+        return this;
+    }
+
+    public Update withLimit(Limit limit) {
+        this.setLimit(limit);
+        return this;
+    }
+
+    public Update withReturningAllColumns(boolean returningAllColumns) {
+        this.setReturningAllColumns(returningAllColumns);
+        return this;
+    }
+
+    public Update withReturningExpressionList(List<SelectExpressionItem> returningExpressionList) {
+        this.setReturningExpressionList(returningExpressionList);
+        return this;
+    }
+
+    public Update withWhere(Expression where) {
+        this.setWhere(where);
+        return this;
+    }
+
+    public Update withColumns(List<Column> columns) {
+        this.setColumns(columns);
+        return this;
+    }
+
+    public Update withExpressions(List<Expression> expressions) {
+        this.setExpressions(expressions);
+        return this;
+    }
+
+    public Update addColumns(Column... columns) {
+        List<Column> collection = Optional.ofNullable(getColumns()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, columns);
+        return this.withColumns(collection);
+    }
+
+    public Update addColumns(Collection<? extends Column> columns) {
+        List<Column> collection = Optional.ofNullable(getColumns()).orElseGet(ArrayList::new);
+        collection.addAll(columns);
+        return this.withColumns(collection);
+    }
+
+    public Update addExpressions(Expression... expressions) {
+        List<Expression> collection = Optional.ofNullable(getExpressions()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, expressions);
+        return this.withExpressions(collection);
+    }
+
+    public Update addExpressions(Collection<? extends Expression> expressions) {
+        List<Expression> collection = Optional.ofNullable(getExpressions()).orElseGet(ArrayList::new);
+        collection.addAll(expressions);
+        return this.withExpressions(collection);
+    }
+
+    public Update addJoins(Join... joins) {
+        List<Join> collection = Optional.ofNullable(getJoins()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, joins);
+        return this.withJoins(collection);
+    }
+
+    public Update addJoins(Collection<? extends Join> joins) {
+        List<Join> collection = Optional.ofNullable(getJoins()).orElseGet(ArrayList::new);
+        collection.addAll(joins);
+        return this.withJoins(collection);
+    }
+
+    public Update addStartJoins(Join... startJoins) {
+        List<Join> collection = Optional.ofNullable(getStartJoins()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, startJoins);
+        return this.withStartJoins(collection);
+    }
+
+    public Update addStartJoins(Collection<? extends Join> startJoins) {
+        List<Join> collection = Optional.ofNullable(getStartJoins()).orElseGet(ArrayList::new);
+        collection.addAll(startJoins);
+        return this.withStartJoins(collection);
+    }
+
+    public Update addOrderByElements(OrderByElement... orderByElements) {
+        List<OrderByElement> collection = Optional.ofNullable(getOrderByElements()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, orderByElements);
+        return this.withOrderByElements(collection);
+    }
+
+    public Update addOrderByElements(Collection<? extends OrderByElement> orderByElements) {
+        List<OrderByElement> collection = Optional.ofNullable(getOrderByElements()).orElseGet(ArrayList::new);
+        collection.addAll(orderByElements);
+        return this.withOrderByElements(collection);
+    }
+
+    public Update addReturningExpressionList(SelectExpressionItem... returningExpressionList) {
+        List<SelectExpressionItem> collection = Optional.ofNullable(getReturningExpressionList()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, returningExpressionList);
+        return this.withReturningExpressionList(collection);
+    }
+
+    public Update addReturningExpressionList(Collection<? extends SelectExpressionItem> returningExpressionList) {
+        List<SelectExpressionItem> collection = Optional.ofNullable(getReturningExpressionList()).orElseGet(ArrayList::new);
+        collection.addAll(returningExpressionList);
+        return this.withReturningExpressionList(collection);
+    }
+
+    public <E extends Expression> E getWhere(Class<E> type) {
+        return type.cast(getWhere());
+    }
+
+    public <E extends FromItem> E getFromItem(Class<E> type) {
+        return type.cast(getFromItem());
     }
 }

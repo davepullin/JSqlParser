@@ -1,34 +1,20 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.select;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-/**
- * A database set operation. This operation consists of a list of plainSelects connected by set
- * operations (UNION,INTERSECT,MINUS,EXCEPT). All these operations have the same priority.
- *
- * @author tw
- */
 public class SetOperationList implements SelectBody {
 
     private List<SelectBody> selects;
@@ -50,6 +36,14 @@ public class SetOperationList implements SelectBody {
 
     public List<SelectBody> getSelects() {
         return selects;
+    }
+
+    public void setSelects(List<SelectBody> selects) {
+        this.selects = selects;
+    }
+
+    public void setOperations(List<SetOperation> operations) {
+        this.operations = operations;
     }
 
     public List<SetOperation> getOperations() {
@@ -132,9 +126,89 @@ public class SetOperationList implements SelectBody {
         return buffer.toString();
     }
 
-    /**
-     * list of set operations.
-     */
+    public SetOperationList withOperations(List<SetOperation> operationList) {
+        setOperations(operationList);
+        return this;
+    }
+
+    public SetOperationList withSelects(List<SelectBody> selects) {
+        setSelects(selects);
+        return this;
+    }
+
+    public SetOperationList withBrackets(List<Boolean> brackets) {
+        this.setBrackets(brackets);
+        return this;
+    }
+
+    public SetOperationList withOrderByElements(List<OrderByElement> orderByElements) {
+        this.setOrderByElements(orderByElements);
+        return this;
+    }
+
+    public SetOperationList withLimit(Limit limit) {
+        this.setLimit(limit);
+        return this;
+    }
+
+    public SetOperationList withOffset(Offset offset) {
+        this.setOffset(offset);
+        return this;
+    }
+
+    public SetOperationList withFetch(Fetch fetch) {
+        this.setFetch(fetch);
+        return this;
+    }
+
+    public SetOperationList addSelects(SelectBody... selects) {
+        List<SelectBody> collection = Optional.ofNullable(getSelects()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, selects);
+        return this.withSelects(collection);
+    }
+
+    public SetOperationList addSelects(Collection<? extends SelectBody> selects) {
+        List<SelectBody> collection = Optional.ofNullable(getSelects()).orElseGet(ArrayList::new);
+        collection.addAll(selects);
+        return this.withSelects(collection);
+    }
+
+    public SetOperationList addOperations(SetOperation... operationList) {
+        List<SetOperation> collection = Optional.ofNullable(getOperations()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, operationList);
+        return this.withOperations(collection);
+    }
+
+    public SetOperationList addOperations(Collection<? extends SetOperation> operationList) {
+        List<SetOperation> collection = Optional.ofNullable(getOperations()).orElseGet(ArrayList::new);
+        collection.addAll(operationList);
+        return this.withOperations(collection);
+    }
+
+    public SetOperationList addBrackets(Boolean... brackets) {
+        List<Boolean> collection = Optional.ofNullable(getBrackets()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, brackets);
+        return this.withBrackets(collection);
+    }
+
+    public SetOperationList addBrackets(Collection<Boolean> brackets) {
+        List<Boolean> collection = Optional.ofNullable(getBrackets()).orElseGet(ArrayList::new);
+        collection.addAll(brackets);
+        return this.withBrackets(collection);
+    }
+
+    public SetOperationList addOrderByElements(OrderByElement... orderByElements) {
+        List<OrderByElement> collection = Optional.ofNullable(getOrderByElements()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, orderByElements);
+        return this.withOrderByElements(collection);
+    }
+
+    public SetOperationList addOrderByElements(Collection<? extends OrderByElement> orderByElements) {
+        List<OrderByElement> collection = Optional.ofNullable(getOrderByElements()).orElseGet(ArrayList::new);
+        collection.addAll(orderByElements);
+        return this.withOrderByElements(collection);
+    }
+
     public enum SetOperationType {
 
         INTERSECT,

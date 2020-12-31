@@ -1,37 +1,25 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.create.table;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
-/**
- * A "CREATE TABLE" statement
- */
 public class CreateTable implements Statement {
 
     private Table table;
@@ -41,17 +29,16 @@ public class CreateTable implements Statement {
     private List<ColumnDefinition> columnDefinitions;
     private List<Index> indexes;
     private Select select;
+    private Table likeTable;
     private boolean selectParenthesis;
     private boolean ifNotExists = false;
+    private RowMovement rowMovement;
 
     @Override
     public void accept(StatementVisitor statementVisitor) {
         statementVisitor.visit(this);
     }
 
-    /**
-     * The name of the table to be created
-     */
     public Table getTable() {
         return table;
     }
@@ -60,11 +47,6 @@ public class CreateTable implements Statement {
         this.table = table;
     }
 
-    /**
-     * Whether the table is unlogged or not (PostgreSQL 9.1+ feature)
-     *
-     * @return
-     */
     public boolean isUnlogged() {
         return unlogged;
     }
@@ -87,12 +69,12 @@ public class CreateTable implements Statement {
     /**
      * A list of options (as simple strings) of this table definition, as ("TYPE", "=", "MYISAM")
      */
-    public List<?> getTableOptionsStrings() {
+    public List<String> getTableOptionsStrings() {
         return tableOptionsStrings;
     }
 
-    public void setTableOptionsStrings(List<String> list) {
-        tableOptionsStrings = list;
+    public void setTableOptionsStrings(List<String> tableOptionsStrings) {
+        this.tableOptionsStrings = tableOptionsStrings;
     }
 
     public List<String> getCreateOptionsStrings() {
@@ -125,6 +107,15 @@ public class CreateTable implements Statement {
         this.selectParenthesis = parenthesis;
     }
 
+    public Table getLikeTable() {
+        return likeTable;
+    }
+
+    public void setLikeTable(Table likeTable, boolean parenthesis) {
+        this.likeTable = likeTable;
+        this.selectParenthesis = parenthesis;
+    }
+
     public boolean isIfNotExists() {
         return ifNotExists;
     }
@@ -141,6 +132,14 @@ public class CreateTable implements Statement {
         this.selectParenthesis = selectParenthesis;
     }
 
+    public RowMovement getRowMovement() {
+        return rowMovement;
+    }
+
+    public void setRowMovement(RowMovement rowMovement) {
+        this.rowMovement = rowMovement;
+    }
+
     @Override
     public String toString() {
         String sql;
@@ -150,9 +149,7 @@ public class CreateTable implements Statement {
                 + (!"".equals(createOps) ? createOps + " " : "")
                 + "TABLE " + (ifNotExists ? "IF NOT EXISTS " : "") + table;
 
-        if (select != null) {
-            sql += " AS " + (selectParenthesis ? "(" : "") + select.toString() + (selectParenthesis ? ")" : "");
-        } else {
+        if (columnDefinitions != null && !columnDefinitions.isEmpty()) {
             sql += " (";
 
             sql += PlainSelect.getStringList(columnDefinitions, true, false);
@@ -167,6 +164,96 @@ public class CreateTable implements Statement {
             }
         }
 
+        if (rowMovement != null) {
+            sql += " " + rowMovement.getMode().toString() + " ROW MOVEMENT";
+        }
+        if (select != null) {
+            sql += " AS " + (selectParenthesis ? "(" : "") + select.toString() + (selectParenthesis ? ")" : "");
+        }
+        if (likeTable != null) {
+            sql += " LIKE " + (selectParenthesis ? "(" : "") + likeTable.toString() + (selectParenthesis ? ")" : "");
+        }
         return sql;
+    }
+
+    public CreateTable withTable(Table table) {
+        this.setTable(table);
+        return this;
+    }
+
+    public CreateTable withUnlogged(boolean unlogged) {
+        this.setUnlogged(unlogged);
+        return this;
+    }
+
+    public CreateTable withCreateOptionsStrings(List<String> createOptionsStrings) {
+        this.setCreateOptionsStrings(createOptionsStrings);
+        return this;
+    }
+
+    public CreateTable withSelectParenthesis(boolean selectParenthesis) {
+        this.setSelectParenthesis(selectParenthesis);
+        return this;
+    }
+
+    public CreateTable withIfNotExists(boolean ifNotExists) {
+        this.setIfNotExists(ifNotExists);
+        return this;
+    }
+
+    public CreateTable withRowMovement(RowMovement rowMovement) {
+        this.setRowMovement(rowMovement);
+        return this;
+    }
+
+    public CreateTable withTableOptionsStrings(List<String> tableOptionsStrings) {
+        this.setTableOptionsStrings(tableOptionsStrings);
+        return this;
+    }
+
+    public CreateTable withColumnDefinitions(List<ColumnDefinition> columnDefinitions) {
+        this.setColumnDefinitions(columnDefinitions);
+        return this;
+    }
+
+    public CreateTable withIndexes(List<Index> indexes) {
+        this.setIndexes(indexes);
+        return this;
+    }
+
+    public CreateTable addCreateOptionsStrings(String... createOptionsStrings) {
+        List<String> collection = Optional.ofNullable(getCreateOptionsStrings()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, createOptionsStrings);
+        return this.withCreateOptionsStrings(collection);
+    }
+
+    public CreateTable addCreateOptionsStrings(Collection<String> createOptionsStrings) {
+        List<String> collection = Optional.ofNullable(getCreateOptionsStrings()).orElseGet(ArrayList::new);
+        collection.addAll(createOptionsStrings);
+        return this.withCreateOptionsStrings(collection);
+    }
+
+    public CreateTable addColumnDefinitions(ColumnDefinition... columnDefinitions) {
+        List<ColumnDefinition> collection = Optional.ofNullable(getColumnDefinitions()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, columnDefinitions);
+        return this.withColumnDefinitions(collection);
+    }
+
+    public CreateTable addColumnDefinitions(Collection<? extends ColumnDefinition> columnDefinitions) {
+        List<ColumnDefinition> collection = Optional.ofNullable(getColumnDefinitions()).orElseGet(ArrayList::new);
+        collection.addAll(columnDefinitions);
+        return this.withColumnDefinitions(collection);
+    }
+
+    public CreateTable addIndexes(Index... indexes) {
+        List<Index> collection = Optional.ofNullable(getIndexes()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, indexes);
+        return this.withIndexes(collection);
+    }
+
+    public CreateTable addIndexes(Collection<? extends Index> indexes) {
+        List<Index> collection = Optional.ofNullable(getIndexes()).orElseGet(ArrayList::new);
+        collection.addAll(indexes);
+        return this.withIndexes(collection);
     }
 }

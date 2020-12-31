@@ -1,50 +1,18 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2014 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 2.1 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
- */
- /*
- * Copyright (C) 2014 JSQLParser.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
  */
 package net.sf.jsqlparser.statement.create.table;
 
+import java.util.Collection;
+import java.util.List;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
-/**
- *
- * @author toben
- */
 public class NamedConstraint extends Index {
 
     @Override
@@ -52,6 +20,52 @@ public class NamedConstraint extends Index {
         String idxSpecText = PlainSelect.getStringList(getIndexSpec(), false, false);
         return (getName() != null ? "CONSTRAINT " + getName() + " " : "")
                 + getType() + " " + PlainSelect.getStringList(getColumnsNames(), true, true) + (!"".
-                equals(idxSpecText) ? " " + idxSpecText : "");
+                        equals(idxSpecText) ? " " + idxSpecText : "");
     }
+
+    @Override
+    public NamedConstraint withName(List<String> name) {
+        return (NamedConstraint) super.withName(name);
+    }
+
+    @Override
+    public NamedConstraint withName(String name) {
+        return (NamedConstraint) super.withName(name);
+    }
+
+    @Override
+    public NamedConstraint withType(String type) {
+        return (NamedConstraint) super.withType(type);
+    }
+
+    @Override
+    public NamedConstraint withUsing(String using) {
+        return (NamedConstraint) super.withUsing(using);
+    }
+
+    @Override
+    public NamedConstraint withColumnsNames(List<String> list) {
+        return (NamedConstraint) super.withColumnsNames(list);
+    }
+
+    @Override
+    public NamedConstraint withColumns(List<ColumnParams> columns) {
+        return (NamedConstraint) super.withColumns(columns);
+    }
+
+    @Override
+    public NamedConstraint addColumns(ColumnParams... functionDeclarationParts) {
+        return (NamedConstraint) super.addColumns(functionDeclarationParts);
+    }
+
+    @Override
+    public NamedConstraint addColumns(Collection<? extends ColumnParams> functionDeclarationParts) {
+        return (NamedConstraint) super.addColumns(functionDeclarationParts);
+    }
+
+    @Override
+    public NamedConstraint withIndexSpec(List<String> idxSpec) {
+        return (NamedConstraint) super.withIndexSpec(idxSpec);
+    }
+
 }

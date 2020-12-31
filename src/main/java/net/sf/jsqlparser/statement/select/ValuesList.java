@@ -1,39 +1,24 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.select;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
 
-import java.util.Iterator;
-import java.util.List;
-import net.sf.jsqlparser.expression.Alias;
-
-/**
- * This is a container for a values item within a select statement. It holds some syntactical stuff
- * that differs from values within an insert statement.
- *
- * @author toben
- */
 public class ValuesList implements FromItem {
 
     private Alias alias;
@@ -70,6 +55,15 @@ public class ValuesList implements FromItem {
 
     @Override
     public void setPivot(Pivot pivot) {
+    }
+
+    @Override
+    public UnPivot getUnPivot() {
+        return null;
+    }
+
+    @Override
+    public void setUnPivot(UnPivot unpivot) {
     }
 
     public MultiExpressionList getMultiExpressionList() {
@@ -124,5 +118,47 @@ public class ValuesList implements FromItem {
 
     public void setColumnNames(List<String> columnNames) {
         this.columnNames = columnNames;
+    }
+
+    @Override
+    public ValuesList withAlias(Alias alias) {
+        return (ValuesList) FromItem.super.withAlias(alias);
+    }
+
+    @Override
+    public ValuesList withPivot(Pivot pivot) {
+        return (ValuesList) FromItem.super.withPivot(pivot);
+    }
+
+    @Override
+    public ValuesList withUnPivot(UnPivot unpivot) {
+        return (ValuesList) FromItem.super.withUnPivot(unpivot);
+    }
+
+    public ValuesList withMultiExpressionList(MultiExpressionList multiExpressionList) {
+        this.setMultiExpressionList(multiExpressionList);
+        return this;
+    }
+
+    public ValuesList withNoBrackets(boolean noBrackets) {
+        this.setNoBrackets(noBrackets);
+        return this;
+    }
+
+    public ValuesList withColumnNames(List<String> columnNames) {
+        this.setColumnNames(columnNames);
+        return this;
+    }
+
+    public ValuesList addColumnNames(String... columnNames) {
+        List<String> collection = Optional.ofNullable(getColumnNames()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, columnNames);
+        return this.withColumnNames(collection);
+    }
+
+    public ValuesList addColumnNames(Collection<String> columnNames) {
+        List<String> collection = Optional.ofNullable(getColumnNames()).orElseGet(ArrayList::new);
+        collection.addAll(columnNames);
+        return this.withColumnNames(collection);
     }
 }

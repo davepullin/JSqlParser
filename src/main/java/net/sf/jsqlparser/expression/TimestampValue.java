@@ -1,22 +1,10 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.expression;
@@ -31,16 +19,18 @@ import java.sql.Timestamp;
 public class TimestampValue extends ASTNodeAccessImpl implements Expression {
 
     private Timestamp value;
-    private char quotation = '\'';
+    private String rawValue;
+    private static final char QUOTATION = '\'';
+
+    public TimestampValue() {
+        // empty constructor
+    }
+
     public TimestampValue(String value) {
         if (value == null) {
             throw new java.lang.IllegalArgumentException("null string");
         } else {
-            if (value.charAt(0) == quotation) {
-                this.value = Timestamp.valueOf(value.substring(1, value.length() - 1));
-            } else {
-                this.value = Timestamp.valueOf(value.substring(0, value.length()));
-            }
+            setRawValue(value);
         }
     }
 
@@ -57,8 +47,26 @@ public class TimestampValue extends ASTNodeAccessImpl implements Expression {
         value = d;
     }
 
+    public String getRawValue() {
+        return rawValue;
+    }
+
+    public void setRawValue(String rawValue) {
+        this.rawValue = rawValue;
+        if (rawValue.charAt(0) == QUOTATION) {
+            this.value = Timestamp.valueOf(rawValue.substring(1, rawValue.length() - 1));
+        } else {
+            this.value = Timestamp.valueOf(rawValue.substring(0, rawValue.length()));
+        }
+    }
+
     @Override
     public String toString() {
         return "{ts '" + value + "'}";
+    }
+
+    public TimestampValue withValue(Timestamp value) {
+        this.setValue(value);
+        return this;
     }
 }

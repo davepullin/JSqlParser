@@ -1,43 +1,27 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.select;
 
 import net.sf.jsqlparser.expression.Expression;
 
-/**
- * An element (column reference) in an "ORDER BY" clause.
- */
 public class OrderByElement {
 
     public enum NullOrdering {
-
         NULLS_FIRST,
         NULLS_LAST
     }
 
     private Expression expression;
     private boolean asc = true;
+    private boolean ascDescPresent = false;
     private NullOrdering nullOrdering;
-    private boolean ascDesc = false;
 
     public boolean isAsc() {
         return asc;
@@ -51,16 +35,16 @@ public class OrderByElement {
         this.nullOrdering = nullOrdering;
     }
 
-    public void setAsc(boolean b) {
-        asc = b;
+    public void setAsc(boolean asc) {
+        this.asc = asc;
     }
 
-    public void setAscDescPresent(boolean b) {
-        ascDesc = b;
+    public void setAscDescPresent(boolean ascDescPresent) {
+        this.ascDescPresent = ascDescPresent;
     }
 
     public boolean isAscDescPresent() {
-        return ascDesc;
+        return ascDescPresent;
     }
 
     public void accept(OrderByVisitor orderByVisitor) {
@@ -82,7 +66,7 @@ public class OrderByElement {
 
         if (!asc) {
             b.append(" DESC");
-        } else if (ascDesc) {
+        } else if (ascDescPresent) {
             b.append(" ASC");
         }
 
@@ -92,4 +76,29 @@ public class OrderByElement {
         }
         return b.toString();
     }
+
+    public OrderByElement withExpression(Expression expression) {
+        this.setExpression(expression);
+        return this;
+    }
+
+    public OrderByElement withAsc(boolean asc) {
+        this.setAsc(asc);
+        return this;
+    }
+
+    public OrderByElement withAscDescPresent(boolean ascDescPresent) {
+        this.setAscDescPresent(ascDescPresent);
+        return this;
+    }
+
+    public OrderByElement withNullOrdering(NullOrdering nullOrdering) {
+        this.setNullOrdering(nullOrdering);
+        return this;
+    }
+
+    public <E extends Expression> E getExpression(Class<E> type) {
+        return type.cast(getExpression());
+    }
+
 }

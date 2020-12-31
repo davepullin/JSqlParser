@@ -1,28 +1,19 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.insert;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.schema.Column;
@@ -33,10 +24,6 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 
-/**
- * The insert statement. Every column name in <code>columnNames</code> matches an item in
- * <code>itemsList</code>
- */
 public class Insert implements Statement {
 
     private Table table;
@@ -55,8 +42,6 @@ public class Insert implements Statement {
 
     private List<SelectExpressionItem> returningExpressionList = null;
     
-    /* these lines of codes are used to handle SET syntax in the insert part. 
-     * the SET syntax is based on this: https://dev.mysql.com/doc/refman/5.6/en/insert.html. */
     private boolean useSet = false;
     private List<Column> setColumns;
     private List<Expression> setExpressionList;
@@ -74,11 +59,6 @@ public class Insert implements Statement {
         table = name;
     }
 
-    /**
-     * Get the columns (found in "INSERT INTO (col1,col2..) [...]" )
-     *
-     * @return a list of {@link net.sf.jsqlparser.schema.Column}
-     */
     public List<Column> getColumns() {
         return columns;
     }
@@ -179,27 +159,27 @@ public class Insert implements Statement {
     public void setModifierIgnore(boolean modifierIgnore) {
         this.modifierIgnore = modifierIgnore;
     }
-    
+
     public void setUseSet(boolean useSet) {
         this.useSet = useSet;
     }
-    
+
     public boolean isUseSet() {
         return useSet;
     }
-    
+
     public void setSetColumns(List<Column> setColumns) {
         this.setColumns = setColumns;
     }
-    
+
     public List<Column> getSetColumns() {
         return setColumns;
     }
-    
+
     public void setSetExpressionList(List<Expression> setExpressionList) {
         this.setExpressionList = setExpressionList;
     }
-    
+
     public List<Expression> getSetExpressionList() {
         return setExpressionList;
     }
@@ -270,5 +250,165 @@ public class Insert implements Statement {
 
         return sql.toString();
     }
-    
+
+    public Insert withUseValues(boolean useValues) {
+        this.setUseValues(useValues);
+        return this;
+    }
+
+    public Insert withSelect(Select select) {
+        this.setSelect(select);
+        return this;
+    }
+
+    public Insert withUseSelectBrackets(boolean useSelectBrackets) {
+        this.setUseSelectBrackets(useSelectBrackets);
+        return this;
+    }
+
+    public Insert withUseDuplicate(boolean useDuplicate) {
+        this.setUseDuplicate(useDuplicate);
+        return this;
+    }
+
+    public Insert withDuplicateUpdateColumns(List<Column> duplicateUpdateColumns) {
+        this.setDuplicateUpdateColumns(duplicateUpdateColumns);
+        return this;
+    }
+
+    public Insert withDuplicateUpdateExpressionList(List<Expression> duplicateUpdateExpressionList) {
+        this.setDuplicateUpdateExpressionList(duplicateUpdateExpressionList);
+        return this;
+    }
+
+    public Insert withModifierPriority(InsertModifierPriority modifierPriority) {
+        this.setModifierPriority(modifierPriority);
+        return this;
+    }
+
+    public Insert withModifierIgnore(boolean modifierIgnore) {
+        this.setModifierIgnore(modifierIgnore);
+        return this;
+    }
+
+    public Insert withReturningAllColumns(boolean returningAllColumns) {
+        this.setReturningAllColumns(returningAllColumns);
+        return this;
+    }
+
+    public Insert withReturningExpressionList(List<SelectExpressionItem> returningExpressionList) {
+        this.setReturningExpressionList(returningExpressionList);
+        return this;
+    }
+
+    public Insert withUseSet(boolean useSet) {
+        this.setUseSet(useSet);
+        return this;
+    }
+
+    public Insert withUseSetColumns(List<Column> setColumns) {
+        this.setSetColumns(setColumns);
+        return this;
+    }
+
+    public Insert withSetExpressionList(List<Expression> setExpressionList) {
+        this.setSetExpressionList(setExpressionList);
+        return this;
+    }
+
+    public Insert withTable(Table table) {
+        this.setTable(table);
+        return this;
+    }
+
+    public Insert withColumns(List<Column> columns) {
+        this.setColumns(columns);
+        return this;
+    }
+
+    public Insert withSetColumns(List<Column> columns) {
+        this.setSetColumns(columns);
+        return this;
+    }
+
+    public Insert withItemsList(ItemsList itemsList) {
+        this.setItemsList(itemsList);
+        return this;
+    }
+
+    public Insert addColumns(Column... columns) {
+        List<Column> collection = Optional.ofNullable(getColumns()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, columns);
+        return this.withColumns(collection);
+    }
+
+    public Insert addColumns(Collection<? extends Column> columns) {
+        List<Column> collection = Optional.ofNullable(getColumns()).orElseGet(ArrayList::new);
+        collection.addAll(columns);
+        return this.withColumns(collection);
+    }
+
+    public Insert addDuplicateUpdateColumns(Column... duplicateUpdateColumns) {
+        List<Column> collection = Optional.ofNullable(getDuplicateUpdateColumns()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, duplicateUpdateColumns);
+        return this.withDuplicateUpdateColumns(collection);
+    }
+
+    public Insert addDuplicateUpdateColumns(Collection<? extends Column> duplicateUpdateColumns) {
+        List<Column> collection = Optional.ofNullable(getDuplicateUpdateColumns()).orElseGet(ArrayList::new);
+        collection.addAll(duplicateUpdateColumns);
+        return this.withDuplicateUpdateColumns(collection);
+    }
+
+    public Insert addDuplicateUpdateExpressionList(Expression... duplicateUpdateExpressionList) {
+        List<Expression> collection = Optional.ofNullable(getDuplicateUpdateExpressionList()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, duplicateUpdateExpressionList);
+        return this.withDuplicateUpdateExpressionList(collection);
+    }
+
+    public Insert addDuplicateUpdateExpressionList(Collection<? extends Expression> duplicateUpdateExpressionList) {
+        List<Expression> collection = Optional.ofNullable(getDuplicateUpdateExpressionList()).orElseGet(ArrayList::new);
+        collection.addAll(duplicateUpdateExpressionList);
+        return this.withDuplicateUpdateExpressionList(collection);
+    }
+
+    public Insert addReturningExpressionList(SelectExpressionItem... returningExpressionList) {
+        List<SelectExpressionItem> collection = Optional.ofNullable(getReturningExpressionList()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, returningExpressionList);
+        return this.withReturningExpressionList(collection);
+    }
+
+    public Insert addReturningExpressionList(Collection<? extends SelectExpressionItem> returningExpressionList) {
+        List<SelectExpressionItem> collection = Optional.ofNullable(getReturningExpressionList()).orElseGet(ArrayList::new);
+        collection.addAll(returningExpressionList);
+        return this.withReturningExpressionList(collection);
+    }
+
+    public Insert addSetColumns(Column... setColumns) {
+        List<Column> collection = Optional.ofNullable(getSetColumns()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, setColumns);
+        return this.withSetColumns(collection);
+    }
+
+    public Insert addSetColumns(Collection<? extends Column> setColumns) {
+        List<Column> collection = Optional.ofNullable(getSetColumns()).orElseGet(ArrayList::new);
+        collection.addAll(setColumns);
+        return this.withSetColumns(collection);
+    }
+
+    public Insert addSetExpressionList(Expression... setExpressionList) {
+        List<Expression> collection = Optional.ofNullable(getSetExpressionList()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, setExpressionList);
+        return this.withSetExpressionList(collection);
+    }
+
+    public Insert addSetExpressionList(Collection<? extends Expression> setExpressionList) {
+        List<Expression> collection = Optional.ofNullable(getSetExpressionList()).orElseGet(ArrayList::new);
+        collection.addAll(setExpressionList);
+        return this.withSetExpressionList(collection);
+    }
+
+    public <E extends ItemsList> E getItemsList(Class<E> type) {
+        return type.cast(getItemsList());
+    }
 }

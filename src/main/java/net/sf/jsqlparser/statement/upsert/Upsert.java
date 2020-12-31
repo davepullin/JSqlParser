@@ -1,28 +1,19 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2017 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 2.1 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.statement.upsert;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.schema.Column;
@@ -32,20 +23,6 @@ import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
-/**
- * The UPSERT INTO statement. This statement is basically the combination of
- * "insert" and "update". That means it will operate inserts if not present
- * and updates otherwise the value in the table. Note the values modified
- * will be either a list of values or a select statement.
- * 
- * 
- * Here is the documentation of the grammar of this operation:
- * http://phoenix.apache.org/language/#upsert_values
- * http://phoenix.apache.org/language/#upsert_select
- * 
- * @author messfish
- *
- */
 public class Upsert implements Statement {
 
     private Table table;
@@ -176,5 +153,88 @@ public class Upsert implements Statement {
         return sb.toString();
     }
 
-}
+    public Upsert withUseValues(boolean useValues) {
+        this.setUseValues(useValues);
+        return this;
+    }
 
+    public Upsert withSelect(Select select) {
+        this.setSelect(select);
+        return this;
+    }
+
+    public Upsert withUseSelectBrackets(boolean useSelectBrackets) {
+        this.setUseSelectBrackets(useSelectBrackets);
+        return this;
+    }
+
+    public Upsert withUseDuplicate(boolean useDuplicate) {
+        this.setUseDuplicate(useDuplicate);
+        return this;
+    }
+
+    public Upsert withDuplicateUpdateColumns(List<Column> duplicateUpdateColumns) {
+        this.setDuplicateUpdateColumns(duplicateUpdateColumns);
+        return this;
+    }
+
+    public Upsert withDuplicateUpdateExpressionList(List<Expression> duplicateUpdateExpressionList) {
+        this.setDuplicateUpdateExpressionList(duplicateUpdateExpressionList);
+        return this;
+    }
+
+    public Upsert withTable(Table table) {
+        this.setTable(table);
+        return this;
+    }
+
+    public Upsert withColumns(List<Column> columns) {
+        this.setColumns(columns);
+        return this;
+    }
+
+    public Upsert withItemsList(ItemsList itemsList) {
+        this.setItemsList(itemsList);
+        return this;
+    }
+
+    public Upsert addColumns(Column... columns) {
+        List<Column> collection = Optional.ofNullable(getColumns()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, columns);
+        return this.withColumns(collection);
+    }
+
+    public Upsert addColumns(Collection<? extends Column> columns) {
+        List<Column> collection = Optional.ofNullable(getColumns()).orElseGet(ArrayList::new);
+        collection.addAll(columns);
+        return this.withColumns(collection);
+    }
+
+    public Upsert addDuplicateUpdateColumns(Column... duplicateUpdateColumns) {
+        List<Column> collection = Optional.ofNullable(getDuplicateUpdateColumns()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, duplicateUpdateColumns);
+        return this.withDuplicateUpdateColumns(collection);
+    }
+
+    public Upsert addDuplicateUpdateColumns(Collection<? extends Column> duplicateUpdateColumns) {
+        List<Column> collection = Optional.ofNullable(getDuplicateUpdateColumns()).orElseGet(ArrayList::new);
+        collection.addAll(duplicateUpdateColumns);
+        return this.withDuplicateUpdateColumns(collection);
+    }
+
+    public Upsert addDuplicateUpdateExpressionList(Expression... duplicateUpdateExpressionList) {
+        List<Expression> collection = Optional.ofNullable(getDuplicateUpdateExpressionList()).orElseGet(ArrayList::new);
+        Collections.addAll(collection, duplicateUpdateExpressionList);
+        return this.withDuplicateUpdateExpressionList(collection);
+    }
+
+    public Upsert addDuplicateUpdateExpressionList(Collection<? extends Expression> duplicateUpdateExpressionList) {
+        List<Expression> collection = Optional.ofNullable(getDuplicateUpdateExpressionList()).orElseGet(ArrayList::new);
+        collection.addAll(duplicateUpdateExpressionList);
+        return this.withDuplicateUpdateExpressionList(collection);
+    }
+
+    public <E extends ItemsList> E getItemsList(Class<E> type) {
+        return type.cast(getItemsList());
+    }
+}

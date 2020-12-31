@@ -1,22 +1,10 @@
-/*
+/*-
  * #%L
  * JSQLParser library
  * %%
- * Copyright (C) 2004 - 2013 JSQLParser
+ * Copyright (C) 2004 - 2019 JSQLParser
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Dual licensed under GNU LGPL 2.1 or Apache License 2.0
  * #L%
  */
 package net.sf.jsqlparser.schema;
@@ -24,46 +12,60 @@ package net.sf.jsqlparser.schema;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.Alias;
+import net.sf.jsqlparser.expression.MySQLIndexHint;
+import net.sf.jsqlparser.expression.SQLServerHints;
 import net.sf.jsqlparser.parser.ASTNodeAccessImpl;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.FromItemVisitor;
+import net.sf.jsqlparser.statement.select.IntoTableVisitor;
+import net.sf.jsqlparser.statement.select.Pivot;
+import net.sf.jsqlparser.statement.select.UnPivot;
 
 /**
  * A table. It can have an alias and the schema name it belongs to.
  */
 public class Table extends ASTNodeAccessImpl implements FromItem, MultiPartName {
 
-//    private Database database;
-//    private String schemaName;
-//    private String name;
+    // private Database database;
+    // private String schemaName;
+    // private String name;
     private static final int NAME_IDX = 0;
+
     private static final int SCHEMA_IDX = 1;
+
     private static final int DATABASE_IDX = 2;
+
     private static final int SERVER_IDX = 3;
 
     private List<String> partItems = new ArrayList<>();
 
     private Alias alias;
+
     private Pivot pivot;
-    private MySQLIndexHint hint;
+
+    private UnPivot unpivot;
+
+    private MySQLIndexHint mysqlHints;
+
+    private SQLServerHints sqlServerHints;
 
     public Table() {
     }
 
     public Table(String name) {
-        setIndex(NAME_IDX, name);
+        setName(name);
     }
 
     public Table(String schemaName, String name) {
-        setIndex(NAME_IDX, name);
-        setIndex(SCHEMA_IDX, schemaName);
+        setName(name);
+        setSchemaName(schemaName);
     }
 
     public Table(Database database, String schemaName, String name) {
-        setIndex(NAME_IDX, name);
-        setIndex(SCHEMA_IDX, schemaName);
-        setIndex(DATABASE_IDX, database.getDatabaseName());
-        setIndex(SERVER_IDX, database.getServer().getFullyQualifiedName());
+        setName(name);
+        setSchemaName(schemaName);
+        setDatabase(database);
     }
 
     public Table(List<String> partItems) {
@@ -75,24 +77,42 @@ public class Table extends ASTNodeAccessImpl implements FromItem, MultiPartName 
         return new Database(getIndex(DATABASE_IDX));
     }
 
+    public Table withDatabase(Database database) {
+        setDatabase(database);
+        return this;
+    }
+
     public void setDatabase(Database database) {
         setIndex(DATABASE_IDX, database.getDatabaseName());
+        if (database.getServer() != null) {
+            setIndex(SERVER_IDX, database.getServer().getFullyQualifiedName());
+        }
     }
 
     public String getSchemaName() {
         return getIndex(SCHEMA_IDX);
     }
 
-    public void setSchemaName(String string) {
-        setIndex(SCHEMA_IDX, string);
+    public Table withSchemaName(String schemaName) {
+        setSchemaName(schemaName);
+        return this;
+    }
+
+    public void setSchemaName(String schemaName) {
+        setIndex(SCHEMA_IDX, schemaName);
     }
 
     public String getName() {
         return getIndex(NAME_IDX);
     }
 
-    public void setName(String string) {
-        setIndex(NAME_IDX, string);
+    public Table withName(String name) {
+        this.setName(name);
+        return this;
+    }
+
+    public void setName(String name) {
+        setIndex(NAME_IDX, name);
     }
 
     @Override
@@ -106,10 +126,16 @@ public class Table extends ASTNodeAccessImpl implements FromItem, MultiPartName 
     }
 
     private void setIndex(int idx, String value) {
-        for (int i = 0; i < idx - partItems.size() + 1; i++) {
+        int size = partItems.size();
+        for (int i = 0; i < idx - size + 1; i++) {
             partItems.add(null);
         }
-        partItems.set(idx, value);
+
+        if (value == null && idx == partItems.size() - 1) {
+            partItems.remove(idx);
+        } else {
+            partItems.set(idx, value);
+        }
     }
 
     private String getIndex(int idx) {
@@ -124,7 +150,7 @@ public class Table extends ASTNodeAccessImpl implements FromItem, MultiPartName 
     public String getFullyQualifiedName() {
         StringBuilder fqn = new StringBuilder();
 
-        for (int i = partItems.size()-1 ; i >=0; i--) {
+        for (int i = partItems.size() - 1; i >= 0; i--) {
             String part = partItems.get(i);
             if (part == null) {
                 part = "";
@@ -157,19 +183,62 @@ public class Table extends ASTNodeAccessImpl implements FromItem, MultiPartName 
         this.pivot = pivot;
     }
 
+    @Override
+    public UnPivot getUnPivot() {
+        return this.unpivot;
+    }
+
+    @Override
+    public void setUnPivot(UnPivot unpivot) {
+        this.unpivot = unpivot;
+    }
+
     public MySQLIndexHint getIndexHint() {
-        return hint;
+        return mysqlHints;
+    }
+
+    public Table withHint(MySQLIndexHint hint) {
+        setHint(hint);
+        return this;
     }
 
     public void setHint(MySQLIndexHint hint) {
-        this.hint = hint;
+        this.mysqlHints = hint;
+    }
+
+    public SQLServerHints getSqlServerHints() {
+        return sqlServerHints;
+    }
+
+    public void setSqlServerHints(SQLServerHints sqlServerHints) {
+        this.sqlServerHints = sqlServerHints;
     }
 
     @Override
     public String toString() {
-        return getFullyQualifiedName()
-                + ((alias != null) ? alias.toString() : "")
-                + ((pivot != null) ? " " + pivot : "")
-                + ((hint != null) ? hint.toString() : "");
+        return getFullyQualifiedName() + ((alias != null) ? alias.toString() : "")
+                + ((pivot != null) ? " " + pivot : "") + ((unpivot != null) ? " " + unpivot : "")
+                + ((mysqlHints != null) ? mysqlHints.toString() : "")
+                + ((sqlServerHints != null) ? sqlServerHints.toString() : "");
+    }
+
+    @Override
+    public Table withUnPivot(UnPivot unpivot) {
+        return (Table) FromItem.super.withUnPivot(unpivot);
+    }
+
+    @Override
+    public Table withAlias(Alias alias) {
+        return (Table) FromItem.super.withAlias(alias);
+    }
+
+    @Override
+    public Table withPivot(Pivot pivot) {
+        return (Table) FromItem.super.withPivot(pivot);
+    }
+
+    public Table withSqlServerHints(SQLServerHints sqlServerHints) {
+        this.setSqlServerHints(sqlServerHints);
+        return this;
     }
 }
