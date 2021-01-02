@@ -63,8 +63,12 @@ public abstract class BinaryExpression extends ASTNodeAccessImpl implements Expr
     // }
     @Override
     public String toString() {
-        return // (not ? "NOT " : "") +
-                getLeftExpression() + " " + getStringExpression() + " " + getRightExpression();
+        String op = getStringExpression();
+        if (op.equals("||")) {
+            return "concat(" + getLeftExpression() + "," + getRightExpression() + ")";
+        } else {
+            return getLeftExpression() + " " + getStringExpression() + " " + getRightExpression();
+        }
     }
 
     public abstract String getStringExpression();

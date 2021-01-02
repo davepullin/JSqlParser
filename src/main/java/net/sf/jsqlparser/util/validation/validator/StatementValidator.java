@@ -33,6 +33,8 @@ import net.sf.jsqlparser.statement.create.schema.CreateSchema;
 import net.sf.jsqlparser.statement.create.sequence.CreateSequence;
 import net.sf.jsqlparser.statement.create.synonym.CreateSynonym;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.table.NewVerb;
+import net.sf.jsqlparser.statement.create.table.RecreateTable;
 import net.sf.jsqlparser.statement.create.view.AlterView;
 import net.sf.jsqlparser.statement.create.view.CreateView;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -58,42 +60,50 @@ public class StatementValidator extends AbstractValidator<Statement> implements 
 
     @Override
     public void visit(CreateIndex createIndex) {
-        getValidator(CreateIndexValidator.class).validate(createIndex);
+        getValidator(CreateIndexValidator.class)
+                .validate(createIndex);
     }
 
     @Override
     public void visit(CreateTable createTable) {
-        getValidator(CreateTableValidator.class).validate(createTable);
+        getValidator(CreateTableValidator.class)
+                .validate(createTable);
     }
 
     @Override
     public void visit(CreateView createView) {
-        getValidator(CreateViewValidator.class).validate(createView);
+        getValidator(CreateViewValidator.class)
+                .validate(createView);
     }
 
     @Override
     public void visit(AlterView alterView) {
-        getValidator(AlterViewValidator.class).validate(alterView);
+        getValidator(AlterViewValidator.class)
+                .validate(alterView);
     }
 
     @Override
     public void visit(Delete delete) {
-        getValidator(DeleteValidator.class).validate(delete);
+        getValidator(DeleteValidator.class)
+                .validate(delete);
     }
 
     @Override
     public void visit(Drop drop) {
-        getValidator(DropValidator.class).validate(drop);
+        getValidator(DropValidator.class)
+                .validate(drop);
     }
 
     @Override
     public void visit(Insert insert) {
-        getValidator(InsertValidator.class).validate(insert);
+        getValidator(InsertValidator.class)
+                .validate(insert);
     }
 
     @Override
     public void visit(Replace replace) {
-        getValidator(ReplaceValidator.class).validate(replace);
+        getValidator(ReplaceValidator.class)
+                .validate(replace);
     }
 
     @Override
@@ -102,9 +112,11 @@ public class StatementValidator extends AbstractValidator<Statement> implements 
 
         SelectValidator selectValidator = getValidator(SelectValidator.class);
         if (select.getWithItemsList() != null) {
-            select.getWithItemsList().forEach(wi -> wi.accept(selectValidator));
+            select.getWithItemsList()
+                    .forEach(wi -> wi.accept(selectValidator));
         }
-        select.getSelectBody().accept(selectValidator);
+        select.getSelectBody()
+                .accept(selectValidator);
     }
 
     @Override
@@ -115,32 +127,38 @@ public class StatementValidator extends AbstractValidator<Statement> implements 
 
     @Override
     public void visit(Update update) {
-        getValidator(UpdateValidator.class).validate(update);
+        getValidator(UpdateValidator.class)
+                .validate(update);
     }
 
     @Override
     public void visit(Alter alter) {
-        getValidator(AlterValidator.class).validate(alter);
+        getValidator(AlterValidator.class)
+                .validate(alter);
     }
 
     @Override
     public void visit(Statements stmts) {
-        stmts.getStatements().forEach(s -> s.accept(this));
+        stmts.getStatements()
+                .forEach(s -> s.accept(this));
     }
 
     @Override
     public void visit(Execute execute) {
-        getValidator(ExecuteValidator.class).validate(execute);
+        getValidator(ExecuteValidator.class)
+                .validate(execute);
     }
 
     @Override
     public void visit(SetStatement set) {
-        getValidator(SetStatementValidator.class).validate(set);
+        getValidator(SetStatementValidator.class)
+                .validate(set);
     }
 
     @Override
     public void visit(Merge merge) {
-        getValidator(MergeValidator.class).validate(merge);
+        getValidator(MergeValidator.class)
+                .validate(merge);
     }
 
     @Override
@@ -150,33 +168,39 @@ public class StatementValidator extends AbstractValidator<Statement> implements 
 
     @Override
     public void visit(Upsert upsert) {
-        getValidator(UpsertValidator.class).validate(upsert);
+        getValidator(UpsertValidator.class)
+                .validate(upsert);
     }
 
     @Override
     public void visit(UseStatement use) {
-        getValidator(UseStatementValidator.class).validate(use);
+        getValidator(UseStatementValidator.class)
+                .validate(use);
     }
 
     @Override
     public void visit(ShowStatement show) {
-        getValidator(ShowStatementValidator.class).validate(show);
+        getValidator(ShowStatementValidator.class)
+                .validate(show);
     }
 
     @Override
     public void visit(ShowColumnsStatement show) {
-        getValidator(ShowColumnsStatementValidator.class).validate(show);
+        getValidator(ShowColumnsStatementValidator.class)
+                .validate(show);
     }
 
     @Override
     public void visit(ShowTablesStatement showTables) {
-        getValidator(ShowTablesStatementValidator.class).validate(showTables);
+        getValidator(ShowTablesStatementValidator.class)
+                .validate(showTables);
     }
 
     @Override
     public void visit(Block block) {
         validateFeature(Feature.block);
-        block.getStatements().accept(this);
+        block.getStatements()
+                .accept(this);
     }
 
     @Override
@@ -189,10 +213,10 @@ public class StatementValidator extends AbstractValidator<Statement> implements 
         }
     }
 
-
     @Override
     public void visit(ValuesStatement values) {
-        getValidator(ValuesStatementValidator.class).validate(values);
+        getValidator(ValuesStatementValidator.class)
+                .validate(values);
     }
 
     @Override
@@ -204,34 +228,39 @@ public class StatementValidator extends AbstractValidator<Statement> implements 
     @Override
     public void visit(ExplainStatement explain) {
         validateFeature(Feature.explain);
-        explain.getStatement().accept(this);
+        explain.getStatement()
+                .accept(this);
     }
-
 
     @Override
     public void visit(DeclareStatement declare) {
-        getValidator(DeclareStatementValidator.class).validate(declare);
+        getValidator(DeclareStatementValidator.class)
+                .validate(declare);
     }
 
     @Override
     public void visit(Grant grant) {
-        getValidator(GrantValidator.class).validate(grant);
+        getValidator(GrantValidator.class)
+                .validate(grant);
     }
 
     @Override
     public void visit(CreateSchema aThis) {
         validateFeatureAndName(Feature.createSchema, NamedObject.schema, aThis.getSchemaName());
-        aThis.getStatements().forEach(s -> s.accept(this));
+        aThis.getStatements()
+                .forEach(s -> s.accept(this));
     }
 
     @Override
     public void visit(CreateSequence createSequence) {
-        getValidator(CreateSequenceValidator.class).validate(createSequence);
+        getValidator(CreateSequenceValidator.class)
+                .validate(createSequence);
     }
 
     @Override
     public void visit(AlterSequence alterSequence) {
-        getValidator(AlterSequenceValidator.class).validate(alterSequence);
+        getValidator(AlterSequenceValidator.class)
+                .validate(alterSequence);
     }
 
     @Override
@@ -251,7 +280,18 @@ public class StatementValidator extends AbstractValidator<Statement> implements 
 
     @Override
     public void visit(CreateSynonym createSynonym) {
-        getValidator(CreateSynonymValidator.class).validate(createSynonym);
+        getValidator(CreateSynonymValidator.class)
+                .validate(createSynonym);
+    }
+
+    @Override
+    public void visit(RecreateTable createTable) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(NewVerb createTable) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

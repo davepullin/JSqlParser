@@ -25,6 +25,7 @@ import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExtractExpression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.HexValue;
+import net.sf.jsqlparser.expression.IfExpression;
 import net.sf.jsqlparser.expression.IntervalExpression;
 import net.sf.jsqlparser.expression.JdbcNamedParameter;
 import net.sf.jsqlparser.expression.JdbcParameter;
@@ -99,7 +100,6 @@ import net.sf.jsqlparser.util.validation.metadata.NamedObject;
  */
 public class ExpressionValidator extends AbstractValidator<Expression> implements ExpressionVisitor {
 
-
     @Override
     public void visit(Addition addition) {
         visitBinaryExpression(addition, " + ");
@@ -112,9 +112,12 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
 
     @Override
     public void visit(Between between) {
-        between.getLeftExpression().accept(this);
-        between.getBetweenExpressionStart().accept(this);
-        between.getBetweenExpressionEnd().accept(this);
+        between.getLeftExpression()
+                .accept(this);
+        between.getBetweenExpressionStart()
+                .accept(this);
+        between.getBetweenExpressionEnd()
+                .accept(this);
     }
 
     @Override
@@ -144,7 +147,8 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
 
     @Override
     public void visit(NotExpression notExpr) {
-        notExpr.getExpression().accept(this);
+        notExpr.getExpression()
+                .accept(this);
     }
 
     @Override
@@ -155,6 +159,11 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
     @Override
     public void visit(BitwiseLeftShift expr) {
         visitBinaryExpression(expr, " << ");
+    }
+
+    @Override
+    public void visit(IfExpression ifExpression) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void visitOldOracleJoinBinaryExpression(OldOracleJoinBinaryExpression expression, String operator) {
@@ -202,17 +211,20 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
 
     @Override
     public void visit(SignedExpression signedExpression) {
-        signedExpression.getExpression().accept(this);
+        signedExpression.getExpression()
+                .accept(this);
     }
 
     @Override
     public void visit(IsNullExpression isNullExpression) {
-        isNullExpression.getLeftExpression().accept(this);
+        isNullExpression.getLeftExpression()
+                .accept(this);
     }
 
     @Override
     public void visit(IsBooleanExpression isBooleanExpression) {
-        isBooleanExpression.getLeftExpression().accept(this);
+        isBooleanExpression.getLeftExpression()
+                .accept(this);
     }
 
     @Override
@@ -230,7 +242,8 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
 
     @Override
     public void visit(ExistsExpression existsExpression) {
-        existsExpression.getRightExpression().accept(this);
+        existsExpression.getRightExpression()
+                .accept(this);
     }
 
     @Override
@@ -274,7 +287,8 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
 
     @Override
     public void visit(Parenthesis parenthesis) {
-        parenthesis.getExpression().accept(this);
+        parenthesis.getExpression()
+                .accept(this);
     }
 
     @Override
@@ -288,8 +302,10 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
     }
 
     protected void visitBinaryExpression(BinaryExpression binaryExpression, String operator) {
-        binaryExpression.getLeftExpression().accept(this);
-        binaryExpression.getRightExpression().accept(this);
+        binaryExpression.getLeftExpression()
+                .accept(this);
+        binaryExpression.getRightExpression()
+                .accept(this);
     }
 
     @Override
@@ -334,7 +350,8 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
             switchExp.accept(this);
         }
 
-        caseExpression.getWhenClauses().forEach(wc -> wc.accept(this));
+        caseExpression.getWhenClauses()
+                .forEach(wc -> wc.accept(this));
 
         Expression elseExp = caseExpression.getElseExpression();
         if (elseExp != null) {
@@ -344,18 +361,22 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
 
     @Override
     public void visit(WhenClause whenClause) {
-        whenClause.getWhenExpression().accept(this);
-        whenClause.getThenExpression().accept(this);
+        whenClause.getWhenExpression()
+                .accept(this);
+        whenClause.getThenExpression()
+                .accept(this);
     }
 
     @Override
     public void visit(AllComparisonExpression allComparisonExpression) {
-        allComparisonExpression.getSubSelect().accept(this);
+        allComparisonExpression.getSubSelect()
+                .accept(this);
     }
 
     @Override
     public void visit(AnyComparisonExpression anyComparisonExpression) {
-        anyComparisonExpression.getSubSelect().accept(this);
+        anyComparisonExpression.getSubSelect()
+                .accept(this);
     }
 
     @Override
@@ -385,7 +406,8 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
 
     @Override
     public void visit(CastExpression cast) {
-        cast.getLeftExpression().accept(this);
+        cast.getLeftExpression()
+                .accept(this);
     }
 
     @Override
@@ -421,7 +443,8 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
 
     @Override
     public void visit(ExtractExpression eexpr) {
-        eexpr.getExpression().accept(this);
+        eexpr.getExpression()
+                .accept(this);
     }
 
     @Override
@@ -505,6 +528,7 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
     public void visit(TimeKeyExpression timeKeyExpression) {
         // nothing to validate
     }
+
     @Override
     public void visit(DateTimeLiteralExpression literal) {
         // nothing to validate
@@ -528,8 +552,10 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
 
     @Override
     public void visit(ArrayExpression array) {
-        array.getObjExpression().accept(this);
-        array.getIndexExpression().accept(this);
+        array.getObjExpression()
+                .accept(this);
+        array.getIndexExpression()
+                .accept(this);
     }
 
     @Override
@@ -541,7 +567,8 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
     public void visit(VariableAssignment a) {
         validateOptionalExpression(a.getExpression());
         if (a.getVariable() != null) {
-            a.getVariable().accept(this);
+            a.getVariable()
+                    .accept(this);
         }
     }
 

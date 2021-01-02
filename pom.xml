@@ -3,7 +3,7 @@
     <groupId>com.github.jsqlparser</groupId>
     <artifactId>jsqlparser</artifactId>
     <version>4.0-SNAPSHOT</version>
-    <name>JSQLParser library</name> 
+    <name>JSQLParser Modified library</name>
     <inceptionYear>2004</inceptionYear>
     <organization>
         <name>JSQLParser</name>
@@ -50,18 +50,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-		    <groupId>org.apache.commons</groupId>
-		    <artifactId>commons-lang3</artifactId>
-		    <version>3.10</version>
-		    <scope>test</scope>
-		</dependency>
-		<dependency>
-		    <groupId>com.h2database</groupId>
-		    <artifactId>h2</artifactId>
-		    <version>1.4.200</version>
-		    <scope>test</scope>
-		</dependency>
-		
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.200</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <developers>
@@ -285,7 +285,7 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <reporting>
         <plugins>
             <plugin>
@@ -426,14 +426,14 @@
                                         <module name="StringLiteralEquality" />
                                         <module name="RedundantImport" />
                                         <module name="UnusedImports" />
-                                        
+
                                         <module name="WhitespaceAfter" />
-										
+
                                         <module name="NeedBraces" />
                                         <module name="UnnecessaryParentheses" />
                                         <module name="LeftCurly" />
                                         <module name="RightCurly" />
-                                        
+
                                         <module name="SuppressWarningsHolder" />
                                     </module>
                                 </module>

@@ -11,7 +11,6 @@ package net.sf.jsqlparser.util.deparser;
 
 import java.util.Iterator;
 import java.util.stream.Collectors;
-
 import net.sf.jsqlparser.statement.Block;
 import net.sf.jsqlparser.statement.Commit;
 import net.sf.jsqlparser.statement.CreateFunctionalStatement;
@@ -33,6 +32,8 @@ import net.sf.jsqlparser.statement.create.schema.CreateSchema;
 import net.sf.jsqlparser.statement.create.sequence.CreateSequence;
 import net.sf.jsqlparser.statement.create.synonym.CreateSynonym;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.table.NewVerb;
+import net.sf.jsqlparser.statement.create.table.RecreateTable;
 import net.sf.jsqlparser.statement.create.view.AlterView;
 import net.sf.jsqlparser.statement.create.view.CreateView;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -84,13 +85,13 @@ public class StatementDeParser extends AbstractDeParser<Statement> implements St
 
     @Override
     public void visit(RecreateTable recreateTable) {
-        RecreateTableDeParser recreateTableDeParser = new RecreateTableDeParser(buffer);
+        RecreateTableDeParser recreateTableDeParser = new RecreateTableDeParser(this, buffer);
         recreateTableDeParser.deParse(recreateTable);
     }
 
     @Override
     public void visit(NewVerb newverbTable) {
-        NewVerbDeParser newverbTableDeParser = new NewVerbDeParser(buffer);
+        NewVerbDeParser newverbTableDeParser = new NewVerbDeParser(this, buffer);
         newverbTableDeParser.deParse(newverbTable);
     }
 
@@ -148,9 +149,11 @@ public class StatementDeParser extends AbstractDeParser<Statement> implements St
         expressionDeParser.setSelectVisitor(selectDeParser);
         expressionDeParser.setBuffer(buffer);
         selectDeParser.setExpressionVisitor(expressionDeParser);
-        if (select.getWithItemsList() != null && !select.getWithItemsList().isEmpty()) {
+        if (select.getWithItemsList() != null && !select.getWithItemsList()
+                .isEmpty()) {
             buffer.append("WITH ");
-            for (Iterator<WithItem> iter = select.getWithItemsList().iterator(); iter.hasNext();) {
+            for (Iterator<WithItem> iter = select.getWithItemsList()
+                    .iterator(); iter.hasNext();) {
                 WithItem withItem = iter.next();
                 withItem.accept(selectDeParser);
                 if (iter.hasNext()) {
@@ -159,7 +162,8 @@ public class StatementDeParser extends AbstractDeParser<Statement> implements St
                 buffer.append(" ");
             }
         }
-        select.getSelectBody().accept(selectDeParser);
+        select.getSelectBody()
+                .accept(selectDeParser);
     }
 
     @Override
@@ -261,7 +265,8 @@ public class StatementDeParser extends AbstractDeParser<Statement> implements St
     public void visit(Block block) {
         buffer.append("BEGIN\n");
         if (block.getStatements() != null) {
-            for (Statement stmt : block.getStatements().getStatements()) {
+            for (Statement stmt : block.getStatements()
+                    .getStatements()) {
                 stmt.accept(this);
                 buffer.append(";\n");
             }
@@ -290,11 +295,15 @@ public class StatementDeParser extends AbstractDeParser<Statement> implements St
     public void visit(ExplainStatement explain) {
         buffer.append("EXPLAIN ");
         if (explain.getOptions() != null) {
-            buffer.append(explain.getOptions().values().stream().map(ExplainStatement.Option::formatOption)
+            buffer.append(explain.getOptions()
+                    .values()
+                    .stream()
+                    .map(ExplainStatement.Option::formatOption)
                     .collect(Collectors.joining(" ")));
             buffer.append(" ");
         }
-        explain.getStatement().accept(this);
+        explain.getStatement()
+                .accept(this);
     }
 
     @Override
