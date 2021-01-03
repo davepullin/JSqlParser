@@ -24,6 +24,7 @@ public class CreateTable implements Statement {
 
     private Table table;
     private boolean unlogged = false;
+    private boolean isRecreate = false;
     private List<String> createOptionsStrings;
     private List<String> tableOptionsStrings;
     private List<ColumnDefinition> columnDefinitions;
@@ -53,6 +54,14 @@ public class CreateTable implements Statement {
 
     public void setUnlogged(boolean unlogged) {
         this.unlogged = unlogged;
+    }
+
+    public boolean isRecreate() {
+        return isRecreate;
+    }
+
+    public void setIsRecreate(boolean isRecreate) {
+        this.isRecreate = isRecreate;
     }
 
     /**
@@ -145,7 +154,7 @@ public class CreateTable implements Statement {
         String sql;
         String createOps = PlainSelect.getStringList(createOptionsStrings, false, false);
 
-        sql = "CREATE " + (unlogged ? "UNLOGGED " : "")
+        sql = (isRecreate ? "RECREATE " : "CREATE ") + (unlogged ? "UNLOGGED " : "")
                 + (!"".equals(createOps) ? createOps + " " : "")
                 + "TABLE " + (ifNotExists ? "IF NOT EXISTS " : "") + table;
 
@@ -165,7 +174,8 @@ public class CreateTable implements Statement {
         }
 
         if (rowMovement != null) {
-            sql += " " + rowMovement.getMode().toString() + " ROW MOVEMENT";
+            sql += " " + rowMovement.getMode()
+                    .toString() + " ROW MOVEMENT";
         }
         if (select != null) {
             sql += " AS " + (selectParenthesis ? "(" : "") + select.toString() + (selectParenthesis ? ")" : "");
@@ -222,37 +232,43 @@ public class CreateTable implements Statement {
     }
 
     public CreateTable addCreateOptionsStrings(String... createOptionsStrings) {
-        List<String> collection = Optional.ofNullable(getCreateOptionsStrings()).orElseGet(ArrayList::new);
+        List<String> collection = Optional.ofNullable(getCreateOptionsStrings())
+                .orElseGet(ArrayList::new);
         Collections.addAll(collection, createOptionsStrings);
         return this.withCreateOptionsStrings(collection);
     }
 
     public CreateTable addCreateOptionsStrings(Collection<String> createOptionsStrings) {
-        List<String> collection = Optional.ofNullable(getCreateOptionsStrings()).orElseGet(ArrayList::new);
+        List<String> collection = Optional.ofNullable(getCreateOptionsStrings())
+                .orElseGet(ArrayList::new);
         collection.addAll(createOptionsStrings);
         return this.withCreateOptionsStrings(collection);
     }
 
     public CreateTable addColumnDefinitions(ColumnDefinition... columnDefinitions) {
-        List<ColumnDefinition> collection = Optional.ofNullable(getColumnDefinitions()).orElseGet(ArrayList::new);
+        List<ColumnDefinition> collection = Optional.ofNullable(getColumnDefinitions())
+                .orElseGet(ArrayList::new);
         Collections.addAll(collection, columnDefinitions);
         return this.withColumnDefinitions(collection);
     }
 
     public CreateTable addColumnDefinitions(Collection<? extends ColumnDefinition> columnDefinitions) {
-        List<ColumnDefinition> collection = Optional.ofNullable(getColumnDefinitions()).orElseGet(ArrayList::new);
+        List<ColumnDefinition> collection = Optional.ofNullable(getColumnDefinitions())
+                .orElseGet(ArrayList::new);
         collection.addAll(columnDefinitions);
         return this.withColumnDefinitions(collection);
     }
 
     public CreateTable addIndexes(Index... indexes) {
-        List<Index> collection = Optional.ofNullable(getIndexes()).orElseGet(ArrayList::new);
+        List<Index> collection = Optional.ofNullable(getIndexes())
+                .orElseGet(ArrayList::new);
         Collections.addAll(collection, indexes);
         return this.withIndexes(collection);
     }
 
     public CreateTable addIndexes(Collection<? extends Index> indexes) {
-        List<Index> collection = Optional.ofNullable(getIndexes()).orElseGet(ArrayList::new);
+        List<Index> collection = Optional.ofNullable(getIndexes())
+                .orElseGet(ArrayList::new);
         collection.addAll(indexes);
         return this.withIndexes(collection);
     }
