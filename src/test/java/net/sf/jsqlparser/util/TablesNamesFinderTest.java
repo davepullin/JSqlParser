@@ -9,6 +9,11 @@
  */
 package net.sf.jsqlparser.util;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.Iterator;
+import java.util.List;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.OracleHint;
@@ -20,7 +25,6 @@ import net.sf.jsqlparser.statement.DescribeStatement;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.comment.Comment;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
-import net.sf.jsqlparser.statement.create.table.RecreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.merge.Merge;
@@ -31,19 +35,12 @@ import net.sf.jsqlparser.statement.simpleparsing.CCJSqlParserManagerTest;
 import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.statement.upsert.Upsert;
 import net.sf.jsqlparser.test.TestException;
-import org.junit.Test;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.Iterator;
-import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
+import org.junit.Test;
 
 public class TablesNamesFinderTest {
 
@@ -96,7 +93,8 @@ public class TablesNamesFinderTest {
                 }
 
                 String query = buf.toString();
-                if (!getLine(in).equals("true")) {
+                if (!getLine(in)
+                        .equals("true")) {
                     continue;
                 }
 
@@ -302,7 +300,8 @@ public class TablesNamesFinderTest {
 
     @Test
     public void testGetTableListFromUpdate3() throws Exception {
-        String sql = "UPDATE MY_TABLE1 SET a = 5 FROM MY_TABLE1 INNER JOIN MY_TABLE2 on MY_TABLE1.C = MY_TABLE2.D WHERE 0 < (SELECT COUNT(b) FROM MY_TABLE3)";
+        String sql
+                = "UPDATE MY_TABLE1 SET a = 5 FROM MY_TABLE1 INNER JOIN MY_TABLE2 on MY_TABLE1.C = MY_TABLE2.D WHERE 0 < (SELECT COUNT(b) FROM MY_TABLE3)";
         net.sf.jsqlparser.statement.Statement statement = pm.parse(new StringReader(sql));
 
         Update updateStatement = (Update) statement;
@@ -316,7 +315,8 @@ public class TablesNamesFinderTest {
 
     @Test
     public void testCmplxSelectProblem() throws Exception {
-        String sql = "SELECT cid, (SELECT name FROM tbl0 WHERE tbl0.id = cid) AS name, original_id AS bc_id FROM tbl WHERE crid = ? AND user_id is null START WITH ID = (SELECT original_id FROM tbl2 WHERE USER_ID = ?) CONNECT BY prior parent_id = id AND rownum = 1";
+        String sql
+                = "SELECT cid, (SELECT name FROM tbl0 WHERE tbl0.id = cid) AS name, original_id AS bc_id FROM tbl WHERE crid = ? AND user_id is null START WITH ID = (SELECT original_id FROM tbl2 WHERE USER_ID = ?) CONNECT BY prior parent_id = id AND rownum = 1";
         net.sf.jsqlparser.statement.Statement statement = pm.parse(new StringReader(sql));
 
         Select selectStatement = (Select) statement;
@@ -359,7 +359,7 @@ public class TablesNamesFinderTest {
         String sql = "RECREATE TABLE mytable AS SELECT mycolumn FROM mytable2";
         net.sf.jsqlparser.statement.Statement statement = pm.parse(new StringReader(sql));
 
-       RecreateTable recreateTable = (RecreateTable) statement;
+        CreateTable recreateTable = (CreateTable) statement;
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
         List<String> tableList = tablesNamesFinder.getTableList(recreateTable);
         assertEquals(2, tableList.size());
@@ -369,7 +369,8 @@ public class TablesNamesFinderTest {
 
     @Test
     public void testInsertSubSelect() throws JSQLParserException {
-        String sql = "INSERT INTO Customers (CustomerName, Country) SELECT SupplierName, Country FROM Suppliers WHERE Country='Germany'";
+        String sql
+                = "INSERT INTO Customers (CustomerName, Country) SELECT SupplierName, Country FROM Suppliers WHERE Country='Germany'";
         Insert insert = (Insert) pm.parse(new StringReader(sql));
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
         List<String> tableList = tablesNamesFinder.getTableList(insert);
@@ -445,7 +446,8 @@ public class TablesNamesFinderTest {
 
     @Test
     public void testGetTableListForMerge() throws Exception {
-        String sql = "MERGE INTO employees e  USING hr_records h  ON (e.id = h.emp_id) WHEN MATCHED THEN  UPDATE SET e.address = h.address  WHEN NOT MATCHED THEN    INSERT (id, address) VALUES (h.emp_id, h.address);";
+        String sql
+                = "MERGE INTO employees e  USING hr_records h  ON (e.id = h.emp_id) WHEN MATCHED THEN  UPDATE SET e.address = h.address  WHEN NOT MATCHED THEN    INSERT (id, address) VALUES (h.emp_id, h.address);";
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 
         Merge parsed = (Merge) CCJSqlParserUtil.parse(sql);
@@ -462,7 +464,8 @@ public class TablesNamesFinderTest {
 
     @Test
     public void testGetTableListForMergeUsingQuery() throws Exception {
-        String sql = "MERGE INTO employees e USING (SELECT * FROM hr_records WHERE start_date > ADD_MONTHS(SYSDATE, -1)) h  ON (e.id = h.emp_id)  WHEN MATCHED THEN  UPDATE SET e.address = h.address WHEN NOT MATCHED THEN INSERT (id, address) VALUES (h.emp_id, h.address)";
+        String sql
+                = "MERGE INTO employees e USING (SELECT * FROM hr_records WHERE start_date > ADD_MONTHS(SYSDATE, -1)) h  ON (e.id = h.emp_id)  WHEN MATCHED THEN  UPDATE SET e.address = h.address WHEN NOT MATCHED THEN INSERT (id, address) VALUES (h.emp_id, h.address)";
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
         List<String> tableList = tablesNamesFinder.getTableList(CCJSqlParserUtil.parse(sql));
         assertEquals(2, tableList.size());
@@ -627,8 +630,9 @@ public class TablesNamesFinderTest {
         String sql = "CREATE SEQUENCE my_seq";
         Statement stmt = CCJSqlParserUtil.parse(sql);
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-        assertThatThrownBy(() -> tablesNamesFinder.getTableList(stmt)).isInstanceOf(UnsupportedOperationException.class)
-        .hasMessage("Finding tables from CreateSequence is not supported");
+        assertThatThrownBy(() -> tablesNamesFinder.getTableList(stmt))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("Finding tables from CreateSequence is not supported");
     }
 
     @Test
@@ -636,8 +640,9 @@ public class TablesNamesFinderTest {
         String sql = "ALTER SEQUENCE my_seq";
         Statement stmt = CCJSqlParserUtil.parse(sql);
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-        assertThatThrownBy(() -> tablesNamesFinder.getTableList(stmt)).isInstanceOf(UnsupportedOperationException.class)
-        .hasMessage("Finding tables from AlterSequence is not supported");
+        assertThatThrownBy(() -> tablesNamesFinder.getTableList(stmt))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("Finding tables from AlterSequence is not supported");
     }
 
     @Test
@@ -645,15 +650,18 @@ public class TablesNamesFinderTest {
         String sql = "CREATE SYNONYM foo FOR bar";
         Statement stmt = CCJSqlParserUtil.parse(sql);
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-        assertThatThrownBy(() -> tablesNamesFinder.getTableList(stmt)).isInstanceOf(UnsupportedOperationException.class)
+        assertThatThrownBy(() -> tablesNamesFinder.getTableList(stmt))
+                .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessage("Finding tables from CreateSynonym is not supported");
     }
-    
+
     @Test
     public void testNPEIssue1009() throws JSQLParserException {
-        Statement stmt = CCJSqlParserUtil.parse(" SELECT * FROM (SELECT * FROM biz_fund_info WHERE tenant_code = ? AND ((ta_code, manager_code) IN ((?, ?)) OR department_type IN (?)))");
-        TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();    
-        
-        assertThat(tablesNamesFinder.getTableList(stmt)).containsExactly("biz_fund_info");
+        Statement stmt = CCJSqlParserUtil.parse(
+                " SELECT * FROM (SELECT * FROM biz_fund_info WHERE tenant_code = ? AND ((ta_code, manager_code) IN ((?, ?)) OR department_type IN (?)))");
+        TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+
+        assertThat(tablesNamesFinder.getTableList(stmt))
+                .containsExactly("biz_fund_info");
     }
 }

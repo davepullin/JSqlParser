@@ -34,7 +34,6 @@ import net.sf.jsqlparser.statement.create.sequence.CreateSequence;
 import net.sf.jsqlparser.statement.create.synonym.CreateSynonym;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.NewVerb;
-import net.sf.jsqlparser.statement.create.table.RecreateTable;
 import net.sf.jsqlparser.statement.create.view.AlterView;
 import net.sf.jsqlparser.statement.create.view.CreateView;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -282,11 +281,6 @@ public class StatementValidator extends AbstractValidator<Statement> implements 
     public void visit(CreateSynonym createSynonym) {
         getValidator(CreateSynonymValidator.class)
                 .validate(createSynonym);
-    }
-
-    @Override
-    public void visit(RecreateTable createTable) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

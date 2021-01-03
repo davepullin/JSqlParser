@@ -30,6 +30,10 @@ public class CreateProcedure extends CreateFunctionalStatement {
         super(orReplace, "PROCEDURE", functionDeclarationParts);
     }
 
+    public CreateProcedure(boolean orReplace, boolean isRecreate, List<String> functionDeclarationParts) {
+        super(orReplace, isRecreate, "PROCEDURE", functionDeclarationParts);
+    }
+
     @Override
     public CreateProcedure withFunctionDeclarationParts(List<String> functionDeclarationParts) {
         return (CreateProcedure) super.withFunctionDeclarationParts(functionDeclarationParts);

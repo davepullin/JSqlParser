@@ -20,6 +20,8 @@ import java.util.Optional;
  */
 public abstract class CreateFunctionalStatement implements Statement {
 
+    private boolean isRecreate;
+
     private String kind;
     private boolean orReplace = false;
 
@@ -32,9 +34,17 @@ public abstract class CreateFunctionalStatement implements Statement {
     protected CreateFunctionalStatement(String kind, List<String> functionDeclarationParts) {
         this(false, kind, functionDeclarationParts);
     }
-    
+
     protected CreateFunctionalStatement(boolean orReplace, String kind, List<String> functionDeclarationParts) {
         this.orReplace = orReplace;
+        this.kind = kind;
+        this.functionDeclarationParts = functionDeclarationParts;
+    }
+
+    protected CreateFunctionalStatement(boolean orReplace, boolean isRecreate, String kind,
+            List<String> functionDeclarationParts) {
+        this.orReplace = orReplace;
+        this.isRecreate = isRecreate;
         this.kind = kind;
         this.functionDeclarationParts = functionDeclarationParts;
     }
@@ -56,9 +66,13 @@ public abstract class CreateFunctionalStatement implements Statement {
     public String getKind() {
         return kind;
     }
-    
+
     public void setOrReplace(boolean orReplace) {
         this.orReplace = orReplace;
+    }
+
+    public void setIsRecreate(boolean isRecreate) {
+        this.isRecreate = isRecreate;
     }
 
     /**
@@ -91,8 +105,8 @@ public abstract class CreateFunctionalStatement implements Statement {
 
     @Override
     public String toString() {
-        return "CREATE " 
-                + (orReplace?"OR REPLACE ":"")
+        return (isRecreate ? "RECREATE " : "CREATE ")
+                + (orReplace ? "OR REPLACE " : "")
                 + kind + " " + formatDeclaration();
     }
 
@@ -102,13 +116,15 @@ public abstract class CreateFunctionalStatement implements Statement {
     }
 
     public CreateFunctionalStatement addFunctionDeclarationParts(String... functionDeclarationParts) {
-        List<String> collection = Optional.ofNullable(getFunctionDeclarationParts()).orElseGet(ArrayList::new);
+        List<String> collection = Optional.ofNullable(getFunctionDeclarationParts())
+                .orElseGet(ArrayList::new);
         Collections.addAll(collection, functionDeclarationParts);
         return this.withFunctionDeclarationParts(collection);
     }
 
     public CreateFunctionalStatement addFunctionDeclarationParts(Collection<String> functionDeclarationParts) {
-        List<String> collection = Optional.ofNullable(getFunctionDeclarationParts()).orElseGet(ArrayList::new);
+        List<String> collection = Optional.ofNullable(getFunctionDeclarationParts())
+                .orElseGet(ArrayList::new);
         collection.addAll(functionDeclarationParts);
         return this.withFunctionDeclarationParts(collection);
     }

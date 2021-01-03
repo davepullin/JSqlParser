@@ -33,7 +33,6 @@ import net.sf.jsqlparser.statement.create.sequence.CreateSequence;
 import net.sf.jsqlparser.statement.create.synonym.CreateSynonym;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.NewVerb;
-import net.sf.jsqlparser.statement.create.table.RecreateTable;
 import net.sf.jsqlparser.statement.create.view.AlterView;
 import net.sf.jsqlparser.statement.create.view.CreateView;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -81,12 +80,6 @@ public class StatementDeParser extends AbstractDeParser<Statement> implements St
     public void visit(CreateTable createTable) {
         CreateTableDeParser createTableDeParser = new CreateTableDeParser(this, buffer);
         createTableDeParser.deParse(createTable);
-    }
-
-    @Override
-    public void visit(RecreateTable recreateTable) {
-        RecreateTableDeParser recreateTableDeParser = new RecreateTableDeParser(this, buffer);
-        recreateTableDeParser.deParse(recreateTable);
     }
 
     @Override
