@@ -1,8 +1,0 @@
-#!/bin/bash
-source /data/conf/init_script.sh $*
-shift $OPTION_SHIFTS 
-HELP "deploys this project"
-
-/pgm/maven/bin/mvn -Dmaven.javadoc.skip=true -DskipTests install 
-my rsync_confirm target/jsqlparser-4.0-SNAPSHOT.jar /s/lib
-## done already: my mvn local /s/lib/jsqlparser-4.0-SNAPSHOT.jar
